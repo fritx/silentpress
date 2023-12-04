@@ -1,16 +1,19 @@
 # bec-wiki
 
 ```sh
+# Prepare
+cp -r p_example p
+cp .env.example .env
+vim .env  # set your own config & secrets
+
 # Develop
-vim .env  # reset your own secret & password
 go run .
 
 # Build & Deploy
-vim .env  # reset your own secret & password
 go build && ./bec-wiki
 
 # Deploy via Docker
-docker run xxx -e xxx -e xxx
+docker run --env-file .env xxx
 
 # Deploy via Docker-Compose
 # See below

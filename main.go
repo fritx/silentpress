@@ -22,6 +22,7 @@ var (
 	host         = os.Getenv("HOST")
 	port         = os.Getenv("PORT")
 	cookieSecret = os.Getenv("COOKIE_SECRET")
+	postDir      = os.Getenv("POST_DIR")
 )
 
 func init() {
@@ -65,7 +66,7 @@ func main() {
 	r.StaticFile("/admin", "./static/admin.html")
 	r.StaticFile("/login", "./static/login.html")
 	r.Use(static.Serve("/", static.LocalFile("./static", false)))
-	r.Use(static.Serve("/p", static.LocalFile("./content", false)))
+	r.Use(static.Serve("/p", static.LocalFile(postDir, false)))
 	r.Use(static.Serve("/", static.LocalFile("./silent_ext", true)))
 	r.Use(static.Serve("/", static.LocalFile("./silent/blog", false)))
 
