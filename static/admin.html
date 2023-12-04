@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width">
+    <title>Wiki Admin</title>
+  </head>
+  <body>
+    <h1>Wiki Admin</h1>
+
+    <script>
+      check()
+      async function check() {
+        try {
+          let resp = await fetch('api/session')
+          let res = await resp.json()
+          if (res.username) {
+            // noop
+          } else {
+            location.href = 'login'
+          }
+        } catch (err) {
+          alert(String(err))
+        }
+      }
+    </script>
+  </body>
+</html>

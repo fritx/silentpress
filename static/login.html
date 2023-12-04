@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width">
+    <title>Admin Login</title>
+    <style>
+      input, button { font-size: inherit }
+      form { font-size: 140% }
+      form div+div { margin-top: .5em }
+      html, body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      main {
+        padding-bottom: 30vh;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Admin Login</h1>
+      <form id="login" onsubmit="return false">
+        <div>
+          <input type="text" name="username">
+        </div>
+        <div>
+          <input type="password" name="password">
+        </div>
+        <div>
+          <button type="submit">Login</button>
+        </div>
+      </form>
+    </main>
+    <script>
+      let form = document.querySelector('#login')
+      form.addEventListener('submit', e => {
+        e.preventDefault()
+        submit()
+      })
+      async function submit() {
+        try {
+          let resp = await fetch('api/login', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              username: form.querySelector('[name=username]').value,
+              password: form.querySelector('[name=password]').value,
+            })
+          })
+          let res = await resp.json()
+          if (res.error) {
+            throw new Error(res.error)
+          } else {
+            location.href = 'admin'
+          }
+        } catch (err) {
+          alert(String(err))
+        }
+      }
+    </script>
+  </body>
+</html>

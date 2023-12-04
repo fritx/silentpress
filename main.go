@@ -46,7 +46,6 @@ func main() {
 		session := sessions.Default(c)
 		c.JSON(200, gin.H{"username": session.Get("username")})
 	})
-
 	r.POST("/api/login", func(c *gin.Context) {
 		json := &loginReq{}
 		_ = c.BindJSON(&json)
@@ -56,13 +55,16 @@ func main() {
 			session.Save()
 			c.JSON(200, gin.H{"message": "Logged in"})
 		} else {
-			c.JSON(400, gin.H{"message": "Wrong username or password"})
+			c.JSON(400, gin.H{"error": "Wrong username or password"})
 		}
 	})
 
 	// Note: Inability to use '/' for static files #75
 	// https://github.com/gin-gonic/gin/issues/75
 	// r.Static("/", "./static")
+	r.StaticFile("/admin", "./static/admin.html")
+	r.StaticFile("/login", "./static/login.html")
+	r.Use(static.Serve("/", static.LocalFile("./static", false)))
 	r.Use(static.Serve("/p", static.LocalFile("./content", false)))
 	r.Use(static.Serve("/", static.LocalFile("./silent_ext", true)))
 	r.Use(static.Serve("/", static.LocalFile("./silent/blog", false)))
