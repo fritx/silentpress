@@ -1,0 +1,3 @@
+[submodule "silent"]
+	path = silent
+	url = git@github.com:fritx/silent.git

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -58,6 +59,13 @@ func main() {
 			c.JSON(400, gin.H{"message": "Wrong username or password"})
 		}
 	})
+
+	// Note: Inability to use '/' for static files #75
+	// https://github.com/gin-gonic/gin/issues/75
+	// r.Static("/", "./static")
+	r.Use(static.Serve("/p", static.LocalFile("./content", false)))
+	r.Use(static.Serve("/", static.LocalFile("./silent_ext", true)))
+	r.Use(static.Serve("/", static.LocalFile("./silent/blog", false)))
 
 	addr := host + ":" + port
 	if err := r.Run(addr); err != nil {

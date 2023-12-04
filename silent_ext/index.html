@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <!-- responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+  <title>&lrm;</title>
+
+  <!-- favicon -->
+  <link rel="icon" href="favicon.ico">
+
+  <!-- url fixing -->
+  <script>
+  // 1. remove extraneous index.html, index.htm
+  // 2. ensure trailing slash
+  if (location.pathname.slice(-1) !== '/') {
+    location.href = location.origin + location.pathname.replace(/\/index\.html?$/, '') +
+      '/' + location.search + location.hash;
+  }
+  </script>
+
+  <!-- import vendor styles -->
+  <link rel="stylesheet" href="vendor/zenburn.css">
+  <link rel="stylesheet" href="vendor/blog.css">
+  <!-- custom -->
+  <style>.sidebar { background-color: #226666 }</style>
+</head>
+<body>
+
+<!-- <a target="_blank" href="https://github.com/fritx/silent">
+  <img class="fork-me" src="vendor/fork.png">
+</a> -->
+
+<!-- settle contents -->
+<div class="contents" id="contents">
+  <div class="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-page" id="sidebar-page"></div>
+    </div>
+  </div>
+
+  <div class="main" id="main">
+    <div class="main-inner">
+      <div class="main-page" id="main-page"></div>
+
+      <!-- comment system -->
+      <div id="comment-system"></div>
+    </div>
+  </div>
+</div>
+
+<!-- fill the img in shared links -->
+<img class="img-holder" id="img-holder" src="p/avatar.jpg">
+
+<!-- import vendor scripts -->
+<script src="vendor/pace-1.2.4.min.js"></script>
+<script src="vendor/lodash-4.17.21.min.js"></script>
+<script src="vendor/jquery-1.11.1.min.js"></script>
+<script src="vendor/marked-0.3.2.min.js"></script>
+<script src="vendor/mermaid-9.1.6.min.js"></script>
+<script src="vendor/highlight.pack.js"></script>
+<script src="vendor/blog.js"></script>
+<!-- custom -->
+<script>
+  function silentComments() {
+    // -- Optional comment system
+    // opt.1 disqus (not recommended in China due to the GFW)
+    // var dqsShortName = 'silent-blog'
+    // silentDisqus(dqsShortName, mainTitle, mainPage)
+
+    // opt.2 cusdis
+    // var cdsHost = 'https://cusdis.com'
+    // var cdsAppId = '3ab3a14f-bcb2-4a6f-b984-742a15463f80'
+    // silentCusdis(cdsHost, cdsAppId, mainTitle, mainPage)
+
+    // opt.3 giscus
+    // silentGiscus({
+    //   'data-repo': 'fritx/silent',
+    //   'data-repo-id': 'MDEwOlJlcG9zaXRvcnkxOTU3NDAyMQ==',
+    //   'data-category': 'Announcements',
+    //   'data-category-id': 'DIC_kwDOASqtBc4CRbFd',
+    //   'data-lang': 'en'
+    // })
+  }
+  marked.setOptions({ breaks: true })
+  silentLoad('hello')
+</script>
+
+<!-- analytics -->
+<!-- opt.1 google -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZY8VWXQSC8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ZY8VWXQSC8');
+</script> -->
+
+<!-- opt.2 baidu -->
+<!-- 注意“启用单页应用数据统计” 管理后台 > 使用设置 > 规则设置 > 选中某个站点 -> 单页设置 -->
+<!-- https://tongji.baidu.com/web/help/article?id=324&type=0 -->
+<!-- <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?7937e5b2f885da9290a2bc7e5c24d9f0";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> -->
+
+</body>
+</html>
