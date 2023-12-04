@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -19,10 +20,11 @@ const (
 )
 
 var (
-	host         = os.Getenv("HOST")
-	port         = os.Getenv("PORT")
-	cookieSecret = os.Getenv("COOKIE_SECRET")
-	postDir      = os.Getenv("POST_DIR")
+	host           = os.Getenv("HOST")
+	port           = os.Getenv("PORT")
+	cookieSecret   = os.Getenv("COOKIE_SECRET")
+	postDir        = os.Getenv("POST_DIR")
+	postDirPath, _ = filepath.Abs(postDir)
 )
 
 func init() {
@@ -43,22 +45,7 @@ func main() {
 	store := cookie.NewStore([]byte(cookieSecret))
 	r.Use(sessions.Sessions(cookieName, store))
 
-	r.GET("/api/session", func(c *gin.Context) {
-		session := sessions.Default(c)
-		c.JSON(200, gin.H{"username": session.Get("username")})
-	})
-	r.POST("/api/login", func(c *gin.Context) {
-		json := &loginReq{}
-		_ = c.BindJSON(&json)
-		if json.Username == adminUsername && json.Password == adminPassword {
-			session := sessions.Default(c)
-			session.Set("username", json.Username)
-			session.Save()
-			c.JSON(200, gin.H{"message": "Logged in"})
-		} else {
-			c.JSON(400, gin.H{"error": "Wrong username or password"})
-		}
-	})
+	adminApis(r)
 
 	// Note: Inability to use '/' for static files #75
 	// https://github.com/gin-gonic/gin/issues/75

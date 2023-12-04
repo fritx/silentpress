@@ -4,23 +4,80 @@
     <meta charset="utf8">
     <meta name="viewport" content="width=device-width">
     <title>Wiki Admin</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 1em 2em;
+      }
+      ul { font-size: 160% }
+      li+li { margin-top: .4em }
+    </style>
   </head>
   <body>
     <h1>Wiki Admin</h1>
-
+    <h3 id="dir"></h3>
+    <ul id="list"></ul>
     <script>
-      check()
-      async function check() {
+      init()
+      async function init() {
         try {
-          let resp = await fetch('api/session')
-          let res = await resp.json()
-          if (res.username) {
-            // noop
-          } else {
-            location.href = 'login'
+          await check()
+          let anyDir = new URLSearchParams(location.search).get('dir') || ''
+          if (anyDir) {
+            anyDir = anyDir.replace(/\/*$/, '/')
+            if (['.', './'].includes(anyDir)) {
+              anyDir = ''
+            }
           }
+          if (anyDir) {
+            let a = document.createElement('a')
+            let parent = anyDir.split('/').slice(0, -2).join('/')
+            console.log('anyDir', anyDir, parent)
+            let params = new URLSearchParams()
+            params.set('dir', parent)
+            a.setAttribute('href', `admin?${params.toString()}`)
+            a.textContent = '< '
+            let dir = document.querySelector('#dir')
+            dir.appendChild(a)
+            dir.appendChild(document.createTextNode(anyDir))
+          }
+          let params = new URLSearchParams()
+          params.set('dir', anyDir)
+          let resp = await fetch(`api/list?${params.toString()}`)
+          let res = await resp.json()
+          if (res.error) {
+            throw new Error(res.error)
+          }
+          let frag = document.createDocumentFragment()
+          res.list.forEach(item => {
+            let li = document.createElement('li')
+            let a = document.createElement('a')
+            let params = new URLSearchParams()
+            if (item.isDir) {
+              params.set('dir', `${anyDir}${item.name}`)
+              a.setAttribute('href', `admin?${params.toString()}`)
+              a.textContent = `> ${item.name}/`
+            } else {
+              params.set('file', `${anyDir}${item.name}`)
+              a.setAttribute('href', `edit?${params.toString()}`)
+              a.textContent = item.name
+            }
+            li.appendChild(a)
+            frag.appendChild(li)
+          })
+          document.querySelector('#list').appendChild(frag)
         } catch (err) {
           alert(String(err))
+        }
+      }
+      async function check() {
+        let resp = await fetch('api/session')
+        let res = await resp.json()
+        if (res.error) {
+          console.warn(res.error)
+          location.href = 'login'
+        } else {
+          // noop
         }
       }
     </script>
