@@ -2,6 +2,6 @@
 
 > 2023.12.4
 
-Bec-Wiki is yet another Blog & CMS framework.
+SilentPress is yet another Blog & CMS framework.
 
-GitHub: https://github.com/we-mid/bec-wiki
+GitHub: https://github.com/fritx/silentpress

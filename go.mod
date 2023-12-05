@@ -1,4 +1,4 @@
-module github.com/we-mid/bec-wiki
+module github.com/fritx/silentpress
 
 go 1.21.1
 

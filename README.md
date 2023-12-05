@@ -1,4 +1,4 @@
-# bec-wiki
+# SilentPress
 
 ```sh
 # Prepare
@@ -14,7 +14,7 @@ go install github.com/cosmtrek/air@latest
 air --build.exclude_dir "p,p_example,silent,silent_ext,static"
 
 # Build & Deploy
-go build && ./bec-wiki
+go build && ./silentpress
 
 # Deploy via Docker
 docker run --env-file .env xxx
@@ -28,6 +28,6 @@ docker run --env-file .env xxx
 ```yml
 # docker-compose.yml
 services:
-  bec-wiki:
+  silentpress:
     # todo
 ```
