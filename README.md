@@ -9,6 +9,10 @@ vim .env  # set your own config & secrets
 # Develop
 go run .
 
+# Develop with live reload
+go install github.com/cosmtrek/air@latest
+air --build.exclude_dir "p,p_example,silent,silent_ext,static"
+
 # Build & Deploy
 go build && ./bec-wiki
 

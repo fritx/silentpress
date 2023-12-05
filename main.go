@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -58,6 +59,7 @@ func main() {
 	r.Use(static.Serve("/", static.LocalFile("./silent/blog", false)))
 
 	addr := host + ":" + port
+	fmt.Printf("Trying to listen at http://%s/ ...\n", addr)
 	if err := r.Run(addr); err != nil {
 		log.Fatalf("Server failed to run: err=%v\n", err)
 	}

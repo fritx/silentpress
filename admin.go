@@ -18,17 +18,13 @@ var (
 var checkAuth gin.HandlerFunc = func(c *gin.Context) {
 	session := sessions.Default(c)
 	username := session.Get("username")
-	if username != nil && username != "" {
-		c.Next()
-	} else {
+	if username == nil || username == "" {
+		c.Abort()
 		c.JSON(401, errorRes{"Login required"})
 	}
 }
 
 func adminApis(r *gin.Engine) {
-	r.GET("/api/session", checkAuth, func(c *gin.Context) {
-		c.JSON(200, successRes{})
-	})
 	r.POST("/api/login", func(c *gin.Context) {
 		json := &loginReq{}
 		_ = c.BindJSON(&json)
@@ -41,25 +37,33 @@ func adminApis(r *gin.Engine) {
 			c.JSON(400, errorRes{"Wrong username or password"})
 		}
 	})
-	r.GET("/api/list", checkAuth, func(c *gin.Context) {
-		dir := c.Query("dir")
-		dir = filepath.Join(postDir, dir)
-		dirPath, _ := filepath.Abs(dir)
-		if strings.HasPrefix(dirPath, postDirPath) {
-			list, _ := os.ReadDir(dirPath)
-			res := &listRes{}
-			for _, v := range list {
-				res.List = append(res.List, listFile{v.Name(), v.IsDir()})
-			}
-			sort.Slice(res.List, func(i, j int) bool {
-				if res.List[i].IsDir && !res.List[j].IsDir {
-					return true
+
+	a := r.Group("/")
+	a.Use(checkAuth)
+	{
+		a.GET("/api/session", func(c *gin.Context) {
+			c.JSON(200, successRes{})
+		})
+		a.GET("/api/list", func(c *gin.Context) {
+			dir := c.Query("dir")
+			dir = filepath.Join(postDir, dir)
+			dirPath, _ := filepath.Abs(dir)
+			if strings.HasPrefix(dirPath, postDirPath) {
+				list, _ := os.ReadDir(dirPath)
+				res := &listRes{}
+				for _, v := range list {
+					res.List = append(res.List, listFile{v.Name(), v.IsDir()})
 				}
-				return false
-			})
-			c.JSON(200, res)
-		} else {
-			c.JSON(400, "Invalid dir path to list")
-		}
-	})
+				sort.Slice(res.List, func(i, j int) bool {
+					if res.List[i].IsDir && !res.List[j].IsDir {
+						return true
+					}
+					return false
+				})
+				c.JSON(200, res)
+			} else {
+				c.JSON(400, "Invalid dir path to list")
+			}
+		})
+	}
 }

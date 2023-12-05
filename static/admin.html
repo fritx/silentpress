@@ -21,7 +21,17 @@
       init()
       async function init() {
         try {
-          await check()
+          {
+            let resp = await fetch('api/session')
+            let res = await resp.json()
+            if (res.error) {
+              console.warn(res.error)
+              location.href = 'login'
+              return
+            } else {
+              // noop
+            }
+          }
           let anyDir = new URLSearchParams(location.search).get('dir') || ''
           if (anyDir) {
             anyDir = anyDir.replace(/\/*$/, '/')
@@ -68,16 +78,6 @@
           document.querySelector('#list').appendChild(frag)
         } catch (err) {
           alert(String(err))
-        }
-      }
-      async function check() {
-        let resp = await fetch('api/session')
-        let res = await resp.json()
-        if (res.error) {
-          console.warn(res.error)
-          location.href = 'login'
-        } else {
-          // noop
         }
       }
     </script>
