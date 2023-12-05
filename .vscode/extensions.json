@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "robertostermann.inline-parameters-extended",
+    "mikestead.dotenv",
+    "golang.go",
+  ],
+}

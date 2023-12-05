@@ -1,4 +1,16 @@
 {
+  "files.associations": {
+    "**/.vscode/*settings*.json": "jsonc",
+    "**/.env*": "dotenv",
+  },
+  "editor.formatOnSave": true,
+  // Prevent VSCode auto format on save from removing final newline
+  // https://stackoverflow.com/questions/40081776/prevent-vscode-auto-format-on-save-from-removing-final-newline
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "[html]": {
+    "editor.formatOnSave": false,
+  },
   "search.exclude": {
     "/silent": true,
   }

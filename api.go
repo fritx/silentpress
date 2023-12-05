@@ -1,8 +1,5 @@
 package main
 
-type listReq struct {
-	Dir string `json:"dir"`
-}
 type listFile struct {
 	Name  string `json:"name"`
 	IsDir bool   `json:"isDir,omitempty"`

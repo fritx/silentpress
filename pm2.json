@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "silentpress",
+      "script": "go build && ./silentpress",
+      "max_restarts": 3
+    }
+  ]
+}

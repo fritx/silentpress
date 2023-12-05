@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  silentpress:
+    build:
+      context: .
+    volumes:
+      - ./.env:/app/.env
+      - ./p:/app/p
+      # optional: share mod & speed up
+      # make sure $GO_HOME is set in your host
+      - $GO_HOME/pkg/mod:/go/pkg/mod
+    environment:
+      # optional: if need a go-proxy
+      # GOPROXY: https://goproxy.cn,direct
+      HOST: '0.0.0.0'
+    ports:
+      - '127.0.0.1:8080:8080'

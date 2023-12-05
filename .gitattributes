@@ -1,0 +1,7 @@
+# Ignore such languages
+
+# Frontend
+*.html linguist-documentation
+*.css linguist-documentation
+*.js linguist-documentation
+*.ts linguist-documentation

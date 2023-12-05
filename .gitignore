@@ -1,3 +1,6 @@
 .env
+tmp
+*.bak
+*.swp
 /silentpress
 /p
