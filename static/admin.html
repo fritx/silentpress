@@ -5,17 +5,16 @@
     <meta name="viewport" content="width=device-width">
     <title>Wiki Admin</title>
     <style>
-      body {
-        margin: 0;
-        padding: 1em 2em;
-      }
-      ul { font-size: 160% }
-      li+li { margin-top: .4em }
+      body { margin: 0; padding: 1em 2em; word-break: break-all }
+      #dir a { font-weight: normal }
+      #list { font-size: 160% }
+      #list li+li { margin-top: .4em }
+      .item-dir { font-weight: bold }
     </style>
   </head>
   <body>
     <h1>Wiki Admin</h1>
-    <h3 id="dir"></h3>
+    <h2 id="dir"></h2>
     <ul id="list"></ul>
     <script>
       init()
@@ -42,18 +41,17 @@
           if (anyDir) {
             let a = document.createElement('a')
             let parent = anyDir.split('/').slice(0, -2).join('/')
-            console.log('anyDir', anyDir, parent)
             let params = new URLSearchParams()
-            params.set('dir', parent)
-            a.setAttribute('href', `admin?${params.toString()}`)
-            a.textContent = '< '
+            if (parent) params.set('dir', parent)
+            a.setAttribute('href', joinParams('admin', params))
+            a.textContent = '<<'
             let dir = document.querySelector('#dir')
             dir.appendChild(a)
-            dir.appendChild(document.createTextNode(anyDir))
+            dir.appendChild(document.createTextNode(' ' + anyDir))
           }
           let params = new URLSearchParams()
           params.set('dir', anyDir)
-          let resp = await fetch(`api/list?${params.toString()}`)
+          let resp = await fetch(joinParams('api/list', params))
           let res = await resp.json()
           if (res.error) {
             throw new Error(res.error)
@@ -65,11 +63,12 @@
             let params = new URLSearchParams()
             if (item.isDir) {
               params.set('dir', `${anyDir}${item.name}`)
-              a.setAttribute('href', `admin?${params.toString()}`)
+              a.setAttribute('href', joinParams('admin', params))
               a.textContent = `> ${item.name}/`
+              a.classList.add('item-dir')
             } else {
               params.set('file', `${anyDir}${item.name}`)
-              a.setAttribute('href', `edit?${params.toString()}`)
+              a.setAttribute('href', joinParams('edit', params))
               a.textContent = item.name
             }
             li.appendChild(a)
@@ -79,6 +78,11 @@
         } catch (err) {
           alert(String(err))
         }
+      }
+      function joinParams(url, params) {
+        let str = ''
+        if (params.size > 0) str += `?${params.toString()}`
+        return `${url}${str}`
       }
     </script>
   </body>

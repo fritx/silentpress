@@ -21,11 +21,11 @@ const (
 )
 
 var (
-	host           = os.Getenv("HOST")
-	port           = os.Getenv("PORT")
-	cookieSecret   = os.Getenv("COOKIE_SECRET")
-	postDir        = os.Getenv("POST_DIR")
-	postDirPath, _ = filepath.Abs(postDir)
+	host          = os.Getenv("HOST")
+	port          = os.Getenv("PORT")
+	cookieSecret  = os.Getenv("COOKIE_SECRET")
+	_postDir      = os.Getenv("POST_DIR")
+	postDirAbs, _ = filepath.Abs(_postDir)
 )
 
 func init() {
@@ -51,12 +51,14 @@ func main() {
 	// Note: Inability to use '/' for static files #75
 	// https://github.com/gin-gonic/gin/issues/75
 	// r.Static("/", "./static")
+	r.StaticFile("/edit", "./static/edit.html")
 	r.StaticFile("/admin", "./static/admin.html")
 	r.StaticFile("/login", "./static/login.html")
 	r.Use(static.Serve("/", static.LocalFile("./static", false)))
-	r.Use(static.Serve("/p", static.LocalFile(postDir, false)))
+	r.Use(static.Serve("/p", static.LocalFile(_postDir, false)))
 	r.Use(static.Serve("/", static.LocalFile("./silent_ext", true)))
-	r.Use(static.Serve("/", static.LocalFile("./silent/blog", false)))
+	r.Use(static.Serve("/vendor", static.LocalFile("./silent/blog/vendor", false)))
+	r.Use(static.Serve("/favicon.ico", static.LocalFile("./silent/blog/favicon.ico", false)))
 
 	addr := host + ":" + port
 	fmt.Printf("Trying to listen at http://%s/ ...\n", addr)
