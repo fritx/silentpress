@@ -2,6 +2,23 @@
 
 > SilentPress is yet another Wiki, Blog & CMS framework, based on [silent](https://github.com/fritx/silent).
 
+## v.s. VitePress & WordPress
+
+| | Silent | SilentPress | VitePress | WordPress |
+| :-- | :--: | :--: | :--: | :--: |
+| Markdown first | √ | √ | √ |  |
+| Static first | √ | √ | √ |  |
+| Build-stage free | √ | √ |  | √ |
+| CMS admin |  | √ | <a target="_blank" href="https://vitepress.dev/guide/cms">🔧</a> | √ |
+| Database free | √ | √ | √ |  |
+| Soooo simple | √ | √ |  |  |
+
+## Live Demo
+
+- Wiki Home: https://fritx.me/silentpress/
+- Wiki Admin: https://fritx.me/silentpress/admin
+  - (Username: `admin`, Password: `SilentPress`)
+
 ## Deploy via Docker-Commpose
 
 ```yml

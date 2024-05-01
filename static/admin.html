@@ -7,16 +7,17 @@
     <style>
       body { margin: 0; padding: 1em 2em; word-break: break-all }
       #dir a { font-weight: normal }
-      #list { font-size: 160% }
-      #list li+li { margin-top: .4em }
+      ul { font-size: 160% }
+      ul li+li { margin-top: .4em }
       .item-dir { font-weight: bold }
     </style>
   </head>
   <body>
-    <h1>Wiki Admin</h1>
+    <h1>Wiki Admin <a target="_blank" href="."><small>🌎</small></a></h1>
     <h2 id="dir"></h2>
     <ul id="list"></ul>
     <script>
+      let anyDir = ''
       init()
       async function init() {
         try {
@@ -31,7 +32,7 @@
               // noop
             }
           }
-          let anyDir = new URLSearchParams(location.search).get('dir') || ''
+          anyDir = new URLSearchParams(location.search).get('dir') || ''
           if (anyDir) {
             anyDir = anyDir.replace(/\/*$/, '/')
             if (['.', './'].includes(anyDir)) {
@@ -57,6 +58,45 @@
             throw new Error(res.error)
           }
           let frag = document.createDocumentFragment()
+          {
+            let li = document.createElement('li')
+            let a = document.createElement('a')
+            a.setAttribute('href', 'javascript:void 0')
+            a.addEventListener('click', async () => {
+              try {
+                let key = (prompt('Directory name:') || '').trim()
+                if (!key) return
+                key = key.replace(/\/*$/, '/')
+                await create(key)
+                location.reload()
+              } catch (err) {
+                alert(String(err))
+                // might be path already exists
+                location.reload()
+              }
+            })
+            a.textContent = '+📁'
+            li.appendChild(a)
+            a = document.createElement('a')
+            a.setAttribute('href', 'javascript:void 0')
+            a.addEventListener('click', async () => {
+              try {
+                let key = (prompt('File name:') || '').trim()
+                if (!key) return
+                key = key.replace(/\/+$/, '')
+                await create(key)
+                location.reload()
+              } catch (err) {
+                alert(String(err))
+                // might be path already exists
+                location.reload()
+              }
+            })
+            a.textContent = '+📄'
+            li.appendChild(document.createTextNode(' / '))
+            li.appendChild(a)
+            frag.appendChild(li)
+          }
           res.list.forEach(item => {
             let li = document.createElement('li')
             let a = document.createElement('a')
@@ -77,6 +117,16 @@
           document.querySelector('#list').appendChild(frag)
         } catch (err) {
           alert(String(err))
+        }
+      }
+      async function create(key) {
+        let resp = await fetch('api/new', {
+          method: 'POST',
+          headers: { 'x-wiki-file': `${anyDir}/${key}` },
+        })
+        let res = await resp.json()
+        if (res.error) {
+          throw new Error(res.error)
         }
       }
       function joinParams(url, params) {

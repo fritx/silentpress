@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -8,48 +9,18 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	filePerm = 0660
+	filePerm = 0660 // `-rw-rw----`
+	dirPerm  = 0770 // `drwxrwx---`
 )
-
-var (
-	adminUsername = os.Getenv("ADMIN_USERNAME")
-	adminPassword = os.Getenv("ADMIN_PASSWORD")
-)
-
-var checkAuth gin.HandlerFunc = func(c *gin.Context) {
-	session := sessions.Default(c)
-	username := session.Get("username")
-	if username == nil || username == "" {
-		c.Abort()
-		c.JSON(401, errorRes{"Login required"})
-	}
-}
 
 func adminApis(r *gin.Engine) {
-	r.POST("/api/login", func(c *gin.Context) {
-		json := &loginReq{}
-		_ = c.BindJSON(&json)
-		if json.Username == adminUsername && json.Password == adminPassword {
-			session := sessions.Default(c)
-			session.Set("username", json.Username)
-			session.Save()
-			c.JSON(200, successRes{})
-		} else {
-			c.JSON(400, errorRes{"Wrong username or password"})
-		}
-	})
-
 	a := r.Group("/")
 	a.Use(checkAuth)
 	{
-		a.GET("/api/session", func(c *gin.Context) {
-			c.JSON(200, successRes{})
-		})
 		a.GET("/api/list", func(c *gin.Context) {
 			dirKey := c.Query("dir")
 			// mind security
@@ -60,6 +31,7 @@ func adminApis(r *gin.Engine) {
 			}
 			list, _ := os.ReadDir(dirAbs)
 			res := &listRes{}
+			res.List = []listFile{}
 			for _, v := range list {
 				res.List = append(res.List, listFile{v.Name(), v.IsDir()})
 			}
@@ -90,28 +62,51 @@ func adminApis(r *gin.Engine) {
 			}
 			if err := os.WriteFile(fileAbs, bytes, filePerm); err != nil {
 				c.JSON(500, errorRes{"Failed to save file"})
-				log.Println("Failed to save file", err)
+				log.Printf("Failed to write file %q. err=%v\n", fileAbs, err)
 				return
 			}
 			c.JSON(200, successRes{})
 		})
+		a.POST("/api/new", func(c *gin.Context) {
+			key := c.GetHeader("x-wiki-file")
+			if key == "" {
+				c.JSON(400, errorRes{"Bad request"})
+				return
+			}
+			// mind security
+			pathAbs, ok := checkIllegalPathToCreate(key)
+			if !ok {
+				c.JSON(400, errorRes{"Bad request"})
+				return
+			}
+			// 检查文件是否存在
+			if _, err := os.Stat(pathAbs); os.IsNotExist(err) {
+				// 文件不存在，则创建文件
+				isDir := strings.HasSuffix(key, "/")
+				if isDir {
+					if err := os.MkdirAll(pathAbs, dirPerm); err != nil {
+						c.JSON(500, errorRes{"Failed to create"})
+						log.Printf("Failed to mkdir %q. err=%v\n", pathAbs, err)
+						return
+					}
+				} else {
+					filename := filepath.Base(pathAbs)
+					content := fmt.Sprintf("# %s\n\n> ...", filename)
+					if err := os.WriteFile(pathAbs, []byte(content), filePerm); err != nil {
+						c.JSON(500, errorRes{"Failed to create"})
+						log.Printf("Failed to write file %q. err=%v\n", pathAbs, err)
+						return
+					}
+				}
+				c.JSON(200, successRes{})
+			} else if err != nil {
+				// 其他错误（非“文件不存在”错误）
+				c.JSON(500, errorRes{"Failed to create"})
+				log.Printf("Failed to check if %q exists. err=%v\n", pathAbs, err)
+			} else {
+				// 文件已存在，不进行任何操作
+				c.JSON(400, errorRes{"Path already exists"})
+			}
+		})
 	}
-}
-
-func checkIllegalFileToSave(fileKey string) (string, bool) {
-	fileAbs := filepath.Join(postDirAbs, fileKey)
-	if !strings.HasPrefix(fileAbs, postDirAbs+string(filepath.Separator)) {
-		log.Printf("Illegal attempt: fileKey=%q, fileAbs=%q\n", fileKey, fileAbs)
-		return "", false
-	}
-	return fileAbs, true
-}
-
-func checkIllegalDirToList(dirKey string) (string, bool) {
-	dirAbs := filepath.Join(postDirAbs, dirKey)
-	if !strings.HasPrefix(dirAbs, postDirAbs) {
-		log.Printf("Illegal attempt: dirKey=%q, dirAbs=%q\n", dirKey, dirAbs)
-		return "", false
-	}
-	return dirAbs, true
 }
