@@ -122,7 +122,9 @@
       async function create(key) {
         let resp = await fetch('api/new', {
           method: 'POST',
-          headers: { 'x-wiki-file': `${anyDir}/${key}` },
+          // fix: TypeError: Failed to execute 'setRequestHeader' on 'XMLHttpRequest': String contains non ISO-8859-1 code point.
+          // https://github.com/axios/axios/issues/4556
+          headers: { 'x-wiki-file': encodeURI(`${anyDir}/${key}`) },
         })
         let res = await resp.json()
         if (res.error) {

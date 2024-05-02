@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -45,6 +46,7 @@ func adminApis(r *gin.Engine) {
 		})
 		a.POST("/api/save", func(c *gin.Context) {
 			fileKey := c.GetHeader("x-wiki-file")
+			fileKey, _ = url.PathUnescape(fileKey)
 			if fileKey == "" {
 				c.JSON(400, errorRes{"Bad request"})
 				return
@@ -69,6 +71,7 @@ func adminApis(r *gin.Engine) {
 		})
 		a.POST("/api/new", func(c *gin.Context) {
 			key := c.GetHeader("x-wiki-file")
+			key, _ = url.PathUnescape(key)
 			if key == "" {
 				c.JSON(400, errorRes{"Bad request"})
 				return

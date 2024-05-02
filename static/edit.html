@@ -159,7 +159,7 @@
       if (!readyToEdit) return
       let resp = await fetch('api/save', {
         method: 'POST',
-        headers: { 'content-type': 'text/plain', 'x-wiki-file': file },
+        headers: { 'x-wiki-file': encodeURI(file) },
         body: editor.value,
       })
       let res = await resp.json()
