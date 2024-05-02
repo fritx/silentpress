@@ -130,8 +130,11 @@
         }
       }
       function joinParams(url, params) {
-        let str = ''
-        if (params.size > 0) str += `?${params.toString()}`
+        // damn trap: fix: params.size not working in older browsers like those in iPhoneX
+        // https://caniuse.com/mdn-api_urlsearchparams_size
+        // if (params.size > 0) str += `?${params.toString()}`
+        let str = params.toString()
+        if (str) str = '?' + str
         return `${url}${str}`
       }
     </script>
