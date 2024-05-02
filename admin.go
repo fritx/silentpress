@@ -25,7 +25,7 @@ func adminApis(r *gin.Engine) {
 		a.GET("/api/list", func(c *gin.Context) {
 			dirKey := c.Query("dir")
 			// mind security
-			dirAbs, ok := checkIllegalDirToList(dirKey)
+			dirAbs, ok := checkIllegalDirToList(c, dirKey)
 			if !ok {
 				c.JSON(400, errorRes{"Bad request"})
 				return
@@ -52,7 +52,7 @@ func adminApis(r *gin.Engine) {
 				return
 			}
 			// mind security
-			fileAbs, ok := checkIllegalFileToSave(fileKey)
+			fileAbs, ok := checkIllegalFileToSave(c, fileKey)
 			if !ok {
 				c.JSON(400, errorRes{"Bad request"})
 				return
@@ -77,7 +77,7 @@ func adminApis(r *gin.Engine) {
 				return
 			}
 			// mind security
-			pathAbs, ok := checkIllegalPathToCreate(key)
+			pathAbs, ok := checkIllegalPathToCreate(c, key)
 			if !ok {
 				c.JSON(400, errorRes{"Bad request"})
 				return

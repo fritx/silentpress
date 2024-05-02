@@ -3,11 +3,9 @@ package main
 import (
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -20,11 +18,9 @@ const (
 )
 
 var (
-	host          = os.Getenv("HOST")
-	port          = os.Getenv("PORT")
-	cookieSecret  = os.Getenv("COOKIE_SECRET")
-	_postDir      = os.Getenv("POST_DIR")
-	postDirAbs, _ = filepath.Abs(_postDir)
+	host         = os.Getenv("HOST")
+	port         = os.Getenv("PORT")
+	cookieSecret = os.Getenv("COOKIE_SECRET")
 )
 
 func init() {
@@ -48,18 +44,8 @@ func main() {
 	authApis(r)
 	adminApis(r)
 
-	// Note: Inability to use '/' for static files #75
-	// https://github.com/gin-gonic/gin/issues/75
-	// r.Static("/", "./static")
-	r.StaticFile("/favicon.ico", "./silent/blog/favicon.ico")
-	r.StaticFile("/edit", "./static/edit.html")
-	r.StaticFile("/admin", "./static/admin.html")
-	r.StaticFile("/login", "./static/login.html")
-
-	// r.Use(static.Serve("/", static.LocalFile("./static", false)))
-	r.Use(static.Serve("/p", static.LocalFile(_postDir, false)))
-	r.Use(static.Serve("/", static.LocalFile("./silent_ext", true)))
-	r.Use(static.Serve("/vendor", static.LocalFile("./silent/blog/vendor", false)))
+	// Below are static resources:
+	staticRoute(r)
 
 	addr := host + ":" + port
 	log.Printf("Trying to listen on http://%s/ ...\n", addr)

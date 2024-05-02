@@ -32,7 +32,7 @@ func authApis(r *gin.Engine) {
 			c.JSON(200, successRes{})
 		} else {
 			c.JSON(400, errorRes{"Wrong username or password"})
-			securityLog("An attempt to login failed. IP=%s", c.ClientIP())
+			securityLog(c, "Failed attempt to login")
 		}
 	})
 	r.GET("/api/session", checkAuth, func(c *gin.Context) {

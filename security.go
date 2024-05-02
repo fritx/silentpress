@@ -27,26 +27,26 @@ func ratelimitLoginApi() gin.HandlerFunc {
 	return leakyBucket(rpsLoginApi)
 }
 
-func checkIllegalPathToCreate(key string) (string, bool) {
+func checkIllegalPathToCreate(c *gin.Context, key string) (string, bool) {
 	pathAbs := filepath.Join(postDirAbs, key)
 	if !isSubpathOfPostDir(pathAbs) || isUnsupportedPath(pathAbs) {
-		securityLog("Illegal attempt to create: key=%q, pathAbs=%q", key, pathAbs)
+		securityLog(c, "Illegal attempt to create: key=%q, pathAbs=%q", key, pathAbs)
 		return "", false
 	}
 	return pathAbs, true
 }
-func checkIllegalFileToSave(fileKey string) (string, bool) {
+func checkIllegalFileToSave(c *gin.Context, fileKey string) (string, bool) {
 	fileAbs := filepath.Join(postDirAbs, fileKey)
 	if !isSubpathOfPostDir(fileAbs) || isUnsupportedPath(fileAbs) {
-		securityLog("Illegal attempt to save: fileKey=%q, fileAbs=%q", fileKey, fileAbs)
+		securityLog(c, "Illegal attempt to save: fileKey=%q, fileAbs=%q", fileKey, fileAbs)
 		return "", false
 	}
 	return fileAbs, true
 }
-func checkIllegalDirToList(dirKey string) (string, bool) {
+func checkIllegalDirToList(c *gin.Context, dirKey string) (string, bool) {
 	dirAbs := filepath.Join(postDirAbs, dirKey)
 	if !isUnderPostDir(dirAbs) {
-		securityLog("Illegal attempt to list: dirKey=%q, dirAbs=%q", dirKey, dirAbs)
+		securityLog(c, "Illegal attempt to list: dirKey=%q, dirAbs=%q", dirKey, dirAbs)
 		return "", false
 	}
 	return dirAbs, true
@@ -62,8 +62,12 @@ func isUnderPostDir(pathAbs string) bool {
 	return strings.HasPrefix(pathAbs, postDirAbs)
 }
 
-func securityLog(layout string, params ...any) {
-	log.Printf("[security] "+layout+"\n", params...)
+func securityLog(c *gin.Context, layout string, params ...any) {
+	if c != nil {
+		prefix := "IP=" + c.ClientIP() + " | "
+		params = append([]any{prefix}, params...)
+	}
+	log.Printf("[security] %s"+layout+"\n", params...)
 }
 
 func assertBadCookieSecret() {

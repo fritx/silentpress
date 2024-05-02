@@ -153,6 +153,7 @@
         readyToEdit = true
       } catch (err) {
         alert(String(err))
+        throw err
       }
     }
     async function save() {

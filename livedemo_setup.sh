@@ -10,6 +10,7 @@ sed -i.bak 's/^PORT=.*/PORT=8082/' .env
 
 # Install dependencies
 git submodule update --init --recursive
+(cd silent && git stash -u && git apply ../silent.patch)
 go mod download
 
 # Add a cron job to recover ./p contents
