@@ -8,7 +8,6 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1
 	go.uber.org/ratelimit v0.3.1
-	golang.org/x/time v0.5.0
 )
 
 require (

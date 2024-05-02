@@ -33,4 +33,6 @@ rm mycron
 # ------------- Minute (0 - 59)
 
 # Start or restart later..
+gspp
+(cd silent && git stash -u && git apply ../silent.patch)
 pm2 start pm2.json && pm2 log

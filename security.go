@@ -15,7 +15,8 @@ const (
 )
 
 var (
-	// eg. url path with `#`,`?` - 404 Page not found
+	// silent: url path with `#`,`?`, `&`, `=` - 404 Page not found
+	// `%` - 400 Bad request
 	regexUnsupportedPath = regexp.MustCompile(`[?#&=%]`)
 )
 

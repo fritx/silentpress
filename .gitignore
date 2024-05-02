@@ -1,6 +1,7 @@
-.env
-tmp
+.DS_Store
 *.bak
 *.swp
-/silentpress
+tmp
+.env
 /p
+/silentpress

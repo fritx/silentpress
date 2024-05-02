@@ -1,6 +1,6 @@
 # SilentPress
 
-> SilentPress is yet another Wiki, Blog & CMS framework, based on [silent](https://github.com/fritx/silent).
+> [SilentPress](https://github.com/fritx/silentpress) is yet another Wiki, Blog & CMS framework, based on [silent](https://github.com/fritx/silent).
 
 ## v.s. VitePress & WordPress
 
@@ -9,7 +9,7 @@
 | Markdown first | √ | √ | √ |  |
 | Static first | √ | √ | √ |  |
 | Build-stage free | √ | √ |  | √ |
-| CMS admin |  | √ | <a target="_blank" href="https://vitepress.dev/guide/cms">🔧</a> | √ |
+| CMS admin |  | √ | [🔧](https://vitepress.dev/guide/cms) | √ |
 | Database free | √ | √ | √ |  |
 | Soooo simple | √ | √ |  |  |
 
@@ -25,7 +25,7 @@
 # docker-compose.yml
 services:
   silentpress:
-    image: fritx/silentpress  # coming soon..
+    image: fritx/silentpress
     restart: unless-stopped
     volumes:
       - ./path/to/.env:/app/.env
@@ -50,6 +50,7 @@ sed -i.bak "s/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=\"$(openssl rand -base64 32)\"/"
 
 # Install dependencies
 git submodule update --init --recursive
+(cd silent && git stash -u && git apply ../silent.patch)
 go mod download
 
 # Develop
@@ -67,4 +68,12 @@ pm2 start pm2.json && pm2 log
 
 # Develop via Docker-Compose
 docker compose up
+
+# Push to Docker-Hub
+docker build -t fritx/silentpress .
+docker login
+docker push fritx/silentpress
+
+# Save silent patch if changed
+(cd silent && git add -A && git diff --cached > ../silent.patch && git reset .)
 ```
