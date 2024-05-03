@@ -19,7 +19,7 @@
 - Wiki Admin: https://fritx.me/silentpress/admin
   - (Username: `admin`, Password: `SilentPress`)
 
-## Deploy via Docker-Commpose
+## Deploy via Docker-Compose
 
 ```yml
 # docker-compose.yml
@@ -49,8 +49,9 @@ sed -i.bak "s/^COOKIE_SECRET=.*/COOKIE_SECRET=\"$(openssl rand -base64 32)\"/" .
 sed -i.bak "s/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=\"$(openssl rand -base64 32)\"/" .env
 
 # Install dependencies
+(cd silent && git stash -u)
 git submodule update --init --recursive
-(cd silent && git stash -u && git apply ../silent.patch)
+(cd silent && git apply ../silent.patch)
 go mod download
 
 # Develop
