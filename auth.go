@@ -9,6 +9,7 @@ import (
 var (
 	adminUsername = os.Getenv("ADMIN_USERNAME")
 	adminPassword = os.Getenv("ADMIN_PASSWORD")
+	deliveryUrl   = os.Getenv("DELIVERY_URL")
 )
 
 func init() {
@@ -36,6 +37,6 @@ func authApis(r *gin.Engine) {
 		}
 	})
 	r.GET("/api/session", checkAuth, func(c *gin.Context) {
-		c.JSON(200, successRes{})
+		c.JSON(200, configRes{deliveryUrl})
 	})
 }

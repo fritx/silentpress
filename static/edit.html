@@ -47,6 +47,7 @@
   <script>
     let readyToEdit = false, previewFlag = true, canPreview = false
     let file = ''
+    let config = {}
     init()
     async function init() {
       captureHotkeyToSave(window)
@@ -58,9 +59,8 @@
             console.warn(res.error)
             location.href = 'login'
             return
-          } else {
-            // noop
           }
+          config = res
         }
         file = new URLSearchParams(location.search).get('file') || ''
         if (!file) {
@@ -89,7 +89,8 @@
           try {
             let a = document.createElement('a')
             a.setAttribute('target', '_blank')
-            a.setAttribute('href', getPreviewFreshSrc())
+            a.setAttribute('href', getPreviewFreshSrc(config.deliveryUrl))
+            console.log('a.href', a.href)
             a.click()
           } catch (err) {
             alert(String(err))
@@ -173,12 +174,12 @@
       preview.style.visibility = 'hidden'
       preview.setAttribute('src', getPreviewFreshSrc())
     }
-    function getPreviewFreshSrc() {
+    function getPreviewFreshSrc(prefix) {
       let ts = Date.now()
       let params = new URLSearchParams()
       let seg = file.replace(/\.md$/i, '')
       if (seg === 'index') seg =''
-      return `./?${seg}${seg ? '&' : ''}_=${ts}`
+      return `${prefix || './'}?${seg}${seg ? '&' : ''}_=${ts}`
     }
     function captureHotkeyToSave(win) {
       win.addEventListener('keydown', async e => {
