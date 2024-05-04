@@ -13,6 +13,10 @@ type loginReq struct {
 	Password string `json:"password"`
 }
 
+type configRes struct {
+	DeliveryUrl string `json:"deliveryUrl"`
+}
+
 type successRes struct {
 	Message string `json:"message,omitempty"`
 }

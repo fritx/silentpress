@@ -1,9 +1,19 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
+
+var (
+	deliveryUrl = os.Getenv("DELIVERY_URL")
+)
+
+func getConfigRes() configRes {
+	return configRes{deliveryUrl}
+}
 
 func setUser(c *gin.Context, username string) {
 	session := sessions.Default(c)

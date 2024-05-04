@@ -13,11 +13,12 @@
     </style>
   </head>
   <body>
-    <h1>Wiki Admin <a target="_blank" href="."><small>🌎</small></a></h1>
+    <h1>Wiki Admin <a id="aOpen" href="javascript:void 0">🌎</a></h1>
     <h2 id="dir"></h2>
     <ul id="list"></ul>
     <script>
       let anyDir = ''
+      let config = {}
       init()
       async function init() {
         try {
@@ -28,9 +29,11 @@
               console.warn(res.error)
               location.href = 'login'
               return
-            } else {
-              // noop
             }
+            config = res
+            // target=_blank should be set with valid href
+            aOpen.setAttribute('target', '_blank')
+            aOpen.setAttribute('href', config.deliveryUrl)
           }
           anyDir = new URLSearchParams(location.search).get('dir') || ''
           if (anyDir) {

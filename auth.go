@@ -36,6 +36,6 @@ func authApis(r *gin.Engine) {
 		}
 	})
 	r.GET("/api/session", checkAuth, func(c *gin.Context) {
-		c.JSON(200, successRes{})
+		c.JSON(200, getConfigRes())
 	})
 }
