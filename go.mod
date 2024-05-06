@@ -2,9 +2,13 @@ module github.com/fritx/silentpress
 
 go 1.21.1
 
-// fix CVE-2023-39325
-// "HTTP/2 rapid reset can cause excessive work in net/http"
+// fix CVE-2023-39325 (High)
+// HTTP/2 rapid reset can cause excessive work in net/http
 require golang.org/x/net v0.23.0 // indirect
+
+// fix CVE-2024-24786 (Moderate)
+// Golang protojson.Unmarshal function infinite loop when unmarshaling certain forms of invalid JSON
+require google.golang.org/protobuf v1.33.0 // indirect
 
 require (
 	github.com/gin-contrib/sessions v0.0.5
@@ -40,6 +44,5 @@ require (
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
