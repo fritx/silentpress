@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -16,6 +17,11 @@ import (
 const (
 	filePerm = 0660 // `-rw-rw----`
 	dirPerm  = 0770 // `drwxrwx---`
+)
+
+var (
+	regexExtMd       = regexp.MustCompile(`\.md$`)    // case-sensitive
+	regexEnsureExtMd = regexp.MustCompile(`(\.md)?$`) // case-sensitive
 )
 
 func adminApis(r *gin.Engine) {
@@ -47,7 +53,7 @@ func adminApis(r *gin.Engine) {
 		a.POST("/api/save", func(c *gin.Context) {
 			fileKey := c.GetHeader("x-wiki-file")
 			fileKey, _ = url.PathUnescape(fileKey)
-			if fileKey == "" {
+			if fileKey == "" || !isExtMd(fileKey) {
 				c.JSON(400, errorRes{"Bad request"})
 				return
 			}
@@ -76,6 +82,11 @@ func adminApis(r *gin.Engine) {
 				c.JSON(400, errorRes{"Bad request"})
 				return
 			}
+			isDir := strings.HasSuffix(key, "/")
+			if !isDir {
+				// for simplicity, only allow `*.md` as New-File for now
+				key = ensureExtMd(key)
+			}
 			// mind security
 			pathAbs, ok := checkIllegalPathToCreate(c, key)
 			if !ok {
@@ -85,7 +96,6 @@ func adminApis(r *gin.Engine) {
 			// 检查文件是否存在
 			if _, err := os.Stat(pathAbs); os.IsNotExist(err) {
 				// 文件不存在，则创建文件
-				isDir := strings.HasSuffix(key, "/")
 				if isDir {
 					if err := os.MkdirAll(pathAbs, dirPerm); err != nil {
 						c.JSON(500, errorRes{"Failed to create"})
@@ -112,4 +122,11 @@ func adminApis(r *gin.Engine) {
 			}
 		})
 	}
+}
+
+func ensureExtMd(key string) string {
+	return regexEnsureExtMd.ReplaceAllLiteralString(key, ".md")
+}
+func isExtMd(key string) bool {
+	return regexExtMd.MatchString(key)
 }

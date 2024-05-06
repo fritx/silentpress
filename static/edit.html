@@ -24,7 +24,7 @@
     @media screen and (max-width: 720px) {
       main { flex-direction: column }
       iframe { flex: .8 }
-      #h5Toggle { display: block }
+      .can-edit #h5Toggle { display: block }
     }
   </style>
 </head>
@@ -45,7 +45,8 @@
     </section>
   </main>
   <script>
-    let readyToEdit = false, previewFlag = true, canPreview = false
+    let loadReady = false, previewFlag = true, canPreview = false
+    let isExtMd = false
     let file = ''
     let config = {}
     init()
@@ -67,8 +68,6 @@
           location.href = 'admin'
           return
         }
-        let titleSpan = pageTitle.querySelector('span')
-        titleSpan.textContent = `Editing: ${file}`
         htmlTitle.textContent = file
 
         let params = new URLSearchParams()
@@ -111,9 +110,23 @@
             throw err
           }
         })
+        isExtMd = /\.md$/.test(file) // case-sensitive
+        let isText = isExtMd
+        let isExtImage = /\.(webp|png|jpe?g|gif)$/i.test(file) // ~insensitive
+        let isExtVideo = /\.(mp4|webm)$/i.test(file) // ~insensitive
+        let isExtAudio = /\.(mp3|wav|ogg)$/i.test(file) // ~insensitive
+        let isMedia = isExtImage || isExtVideo || isExtAudio
+        canPreview = isExtMd || isMedia
+        canEdit = isExtMd
+        let titleSpan = pageTitle.querySelector('span')
+        if (canEdit) {
+          main.classList.add('can-edit')
+          titleSpan.textContent = `Editing: ${file}`
+        } else {
+          titleSpan.textContent = file
+        }
 
         captureHotkeyToSave(preview.contentWindow)
-        canPreview = /\.md$/.test(file)
         if (canPreview) {
           main.classList.add('can-preview')
           preview.addEventListener('load', () => {
@@ -121,7 +134,11 @@
               captureHotkeyToSave(preview.contentWindow)
               let doc = preview.contentWindow.document
               let style = doc.createElement('style')
-              style.textContent = `.sidebar { display: none }`
+              if (isMedia) {
+                style.textContent = `body { background-color: gray } img, video { max-width: 100% } .main-page { padding-bottom: 0 }`
+              } else {
+                style.textContent = `.sidebar, .fork-me, #comment-system { display: none }`
+              }
               doc.head.appendChild(style)
               setTimeout(() => {
                 preview.style.visibility = 'visible'
@@ -138,27 +155,32 @@
           style.textContent = 'body { margin: 0; padding: 1em }'
           doc.body.appendChild(style)
           let h = doc.createElement('h3')
-          h.textContent = `Can not preview file \`${file}\` . Only *.md files are supported.`
+          h.textContent = `Can not preview file ${JSON.stringify(file)}. Only *.md files are supported.`
           doc.body.appendChild(h)
           preview.style.visibility = 'visible'
         }
-        let ts = Date.now()
-        let resp = await fetch(`p/${encodeURI(file)}?_=${ts}`)
-        let text = await resp.text()
-        // eg. url path with `#`,`?` - 404 Page not found
-        if (!resp.ok) {
-          let err = new Error(text)
-          throw err
+        if (isText) {
+          let ts = Date.now()
+          let resp = await fetch(`p/${encodeURI(file)}?_=${ts}`)
+          let text = await resp.text()
+          // eg. url path with `#`,`?` - 404 Page not found
+          if (!resp.ok) {
+            let err = new Error(text)
+            throw err
+          }
+          editor.value = text
+        } else {
+          editor.value = `Can not edit file ${JSON.stringify(file)}. Only *.md files are supported.`
+          editor.setAttribute('disabled', '')
         }
-        editor.value = text
-        readyToEdit = true
+        loadReady = true
       } catch (err) {
         alert(String(err))
         throw err
       }
     }
     async function save() {
-      if (!readyToEdit) return
+      if (!canEdit || !loadReady) return
       let resp = await fetch('api/save', {
         method: 'POST',
         headers: { 'x-wiki-file': encodeURI(file) },
@@ -178,7 +200,11 @@
       let ts = Date.now()
       let params = new URLSearchParams()
       let seg = file.replace(/\.md$/i, '')
-      if (seg === 'index') seg =''
+      seg = encodeURI(seg)
+      if (seg === 'index') seg = ''
+      if (!isExtMd) {
+        return `${prefix || './'}p/${seg}?_=${ts}`
+      }
       return `${prefix || './'}?${seg}${seg ? '&' : ''}_=${ts}`
     }
     function captureHotkeyToSave(win) {
