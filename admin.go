@@ -20,8 +20,12 @@ const (
 )
 
 var (
-	regexExtMd       = regexp.MustCompile(`\.md$`)    // case-sensitive
-	regexEnsureExtMd = regexp.MustCompile(`(\.md)?$`) // case-sensitive
+	regexExtMd               = regexp.MustCompile(`\.md$`)    // case-sensitive
+	regexEnsureExtMd         = regexp.MustCompile(`(\.md)?$`) // case-sensitive
+	regexEnsureTrailingSlash = regexp.MustCompile(`/?$`)
+
+	_deliveryUrl = os.Getenv("DELIVERY_URL")
+	deliveryUrl  = ensureTrailingSlash(_deliveryUrl)
 )
 
 func adminApis(r *gin.Engine) {
@@ -124,6 +128,15 @@ func adminApis(r *gin.Engine) {
 	}
 }
 
+func getConfigRes() configRes {
+	return configRes{deliveryUrl}
+}
+func ensureTrailingSlash(str string) string {
+	if str == "" {
+		return str
+	}
+	return regexEnsureTrailingSlash.ReplaceAllLiteralString(str, "/")
+}
 func ensureExtMd(key string) string {
 	return regexEnsureExtMd.ReplaceAllLiteralString(key, ".md")
 }

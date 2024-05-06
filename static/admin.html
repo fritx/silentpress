@@ -35,7 +35,7 @@
             config = res
             // target=_blank should be set with valid href
             aOpen.setAttribute('target', '_blank')
-            aOpen.setAttribute('href', config.deliveryUrl)
+            aOpen.setAttribute('href', config.deliveryUrl || './')
           }
           anyDir = new URLSearchParams(location.search).get('dir') || ''
           if (anyDir) {
