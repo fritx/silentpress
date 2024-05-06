@@ -74,7 +74,6 @@ pm2 start pm2.json && pm2 log
 docker compose up
 
 # Push to Docker-Hub
-docker build -t fritx/silentpress .
 docker login
 docker push fritx/silentpress
 

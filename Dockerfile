@@ -1,4 +1,6 @@
 FROM golang:alpine AS build
+ARG GOPROXY
+ENV GOPROXY=$GOPROXY
 WORKDIR /app
 
 COPY go.* .

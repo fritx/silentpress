@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -23,8 +22,7 @@ func init() {
 }
 
 func main() {
-	// r := gin.New()
-	r := gin.Default() // with default middlewares
+	r := enhancedGinEngine()
 	r.Use(ratelimitAllReq())
 	r.Use(enhancedCookieSessions())
 

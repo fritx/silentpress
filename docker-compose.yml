@@ -2,17 +2,19 @@ version: '3'
 
 services:
   silentpress:
+    image: fritx/silentpress
     build:
       context: .
+      args:
+        # optional: if need a go-proxy
+        # GOPROXY: https://goproxy.cn,direct
+        GOPROXY: ''
     volumes:
       - ./.env:/app/.env
       - ./p:/app/p
-      # optional: share mod & speed up
-      # make sure $GO_HOME is set in your host
-      - $GO_HOME/pkg/mod:/go/pkg/mod
+      # optional: share go/pkg & speed up
+      # - path/to/go/pkg:/go/pkg
     environment:
-      # optional: if need a go-proxy
-      # GOPROXY: https://goproxy.cn,direct
-      HOST: '0.0.0.0'
+      HOST: '0.0.0.0' # required here
     ports:
       - '127.0.0.1:8080:8080'

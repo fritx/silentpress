@@ -23,6 +23,11 @@ const (
 )
 
 var (
+	// fix: [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+	// Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+	trustedProxies  = []string{"127.0.0.1", "::1"} // default
+	_trustedProxies = os.Getenv("TRUSTED_PROXIES")
+
 	cookiePath   = os.Getenv("COOKIE_PATH")
 	cookieSecure = os.Getenv("COOKIE_SECURE") == "1"
 	cookieSecret = os.Getenv("COOKIE_SECRET")
@@ -34,6 +39,10 @@ var (
 
 func init() {
 	assertBadCookieSecret()
+
+	if _trustedProxies != "" {
+		trustedProxies = strings.Split(_trustedProxies, ",")
+	}
 }
 
 func ratelimitAllReq() gin.HandlerFunc {
@@ -102,6 +111,12 @@ func enhancedCookieSessions() gin.HandlerFunc {
 		HttpOnly: true,
 	})
 	return sessions.Sessions(cookieName, store)
+}
+func enhancedGinEngine() *gin.Engine {
+	// r := gin.New()
+	r := gin.Default() // with default middlewares
+	r.SetTrustedProxies(trustedProxies)
+	return r
 }
 
 // todo: plus most-used-passwords check
