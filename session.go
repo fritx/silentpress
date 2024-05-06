@@ -27,5 +27,9 @@ func getUser(c *gin.Context) (string, bool) {
 	if username == nil || username == "" {
 		return "", false
 	}
+	// mind security (progressive..)
+	if username != adminUsername {
+		return "", false
+	}
 	return username.(string), true
 }

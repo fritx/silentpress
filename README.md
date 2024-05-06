@@ -26,8 +26,10 @@
 services:
   silentpress:
     image: fritx/silentpress
-    restart: unless-stopped
     volumes:
+      # - ~/silentpress/.env.example:/app/.env
+      # - ~/silentpress/p_example:/app/p
+      # set your own config & secrets, see below..
       - ./path/to/.env:/app/.env
       - ./path/to/p:/app/p
     environment:
@@ -45,8 +47,8 @@ cp .env.example .env
 # set your own config & secrets
 # vim .env
 # for example
-sed -i.bak "s/^COOKIE_SECRET=.*/COOKIE_SECRET=\"$(openssl rand -base64 32)\"/" .env
-sed -i.bak "s/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=\"$(openssl rand -base64 32)\"/" .env
+sed -i.bak "s|^COOKIE_SECRET=.*|COOKIE_SECRET=\"$(openssl rand -base64 32)\"|" .env
+sed -i.bak "s|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=\"$(openssl rand -base64 32)\"|" .env
 
 # Install dependencies
 (cd silent && git stash -u)
@@ -59,7 +61,8 @@ go run .
 
 # Develop with live reload
 go install github.com/cosmtrek/air@latest
-air --build.exclude_dir "p,p_example,silent,silent_ext,static"
+pkill -f silentpress/tmp/main; \
+  air --build.exclude_dir "p,p_example,silent,silent_ext,static"
 
 # Build & Deploy
 go build && ./silentpress

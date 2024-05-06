@@ -4,23 +4,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 )
 
-const (
-	// Note: gin session: invalid memory address or nil pointer dereference? #91
-	// https://github.com/gin-contrib/sessions/issues/91
-	// > mind the illegal character in your session name such as ':' or '/'
-	cookieName = "silentpress-sess"
-)
-
 var (
-	host         = os.Getenv("HOST")
-	port         = os.Getenv("PORT")
-	cookieSecret = os.Getenv("COOKIE_SECRET")
+	host = os.Getenv("HOST")
+	port = os.Getenv("PORT")
 )
 
 func init() {
@@ -30,16 +20,13 @@ func init() {
 	if port == "" {
 		port = "8080"
 	}
-	assertBadCookieSecret()
 }
 
 func main() {
 	// r := gin.New()
 	r := gin.Default() // with default middlewares
 	r.Use(ratelimitAllReq())
-
-	store := cookie.NewStore([]byte(cookieSecret))
-	r.Use(sessions.Sessions(cookieName, store))
+	r.Use(enhancedCookieSessions())
 
 	authApis(r)
 	adminApis(r)

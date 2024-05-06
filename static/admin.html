@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width">
     <title>Wiki Admin</title>
     <style>
-      body { margin: 0; padding: 1em 2em; word-break: break-all }
+      body { margin: 0; padding: 1em 2em; word-break: break-all; visibility: hidden }
+      body.ready { visibility: visible }
       #dir a { font-weight: normal }
       ul { font-size: 160% }
       ul li+li { margin-top: .4em }
@@ -30,6 +31,7 @@
               location.href = 'login'
               return
             }
+            document.body.classList.add('ready')
             config = res
             // target=_blank should be set with valid href
             aOpen.setAttribute('target', '_blank')
@@ -67,7 +69,7 @@
             a.setAttribute('href', 'javascript:void 0')
             a.addEventListener('click', async () => {
               try {
-                let key = (prompt('Directory name:') || '').trim()
+                let key = (prompt('New Directory:') || '').trim()
                 if (!key) return
                 key = key.replace(/\/*$/, '/')
                 await create(key)
@@ -85,7 +87,7 @@
             a.setAttribute('href', 'javascript:void 0')
             a.addEventListener('click', async () => {
               try {
-                let key = (prompt('File name:') || '').trim()
+                let key = (prompt('New File:') || '').trim()
                 if (!key) return
                 key = key.replace(/\/+$/, '')
                 await create(key)

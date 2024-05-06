@@ -4,13 +4,14 @@ cp .env.example .env
 # set your own config & secrets
 # vim .env
 # for example
-sed -i.bak "s/^COOKIE_SECRET=.*/COOKIE_SECRET=\"$(openssl rand -base64 32)\"/" .env
-sed -i.bak 's/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=\"SilentPress\"/' .env
+sed -i.bak "s|^COOKIE_SECRET=.*|COOKIE_SECRET=\"$(openssl rand -base64 32)\"|" .env
+sed -i.bak 's|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=\"SilentPress\"|' .env
 sed -i.bak 's/^PORT=.*/PORT=8082/' .env
 
 # Install dependencies
+(cd silent && git stash -u)
 git submodule update --init --recursive
-(cd silent && git stash -u && git apply ../silent.patch)
+(cd silent && git apply ../silent.patch)
 go mod download
 
 # Add a cron job to recover ./p contents

@@ -2,23 +2,39 @@ package main
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
 const (
 	rpsAllReq   = 300
 	rpsLoginApi = 1
+
+	// Note: gin session: invalid memory address or nil pointer dereference? #91
+	// https://github.com/gin-contrib/sessions/issues/91
+	// > mind the illegal character in your session name such as ':' or '/'
+	cookieName = "silentpress-sess"
 )
 
 var (
+	cookiePath   = os.Getenv("COOKIE_PATH")
+	cookieSecure = os.Getenv("COOKIE_SECURE") == "1"
+	cookieSecret = os.Getenv("COOKIE_SECRET")
+
 	// silent: url path with `#`,`?`, `&`, `=` - 404 Page not found
 	// `%` - 400 Bad request
 	regexUnsupportedPath = regexp.MustCompile(`[?#&=%]`)
 )
+
+func init() {
+	assertBadCookieSecret()
+}
 
 func ratelimitAllReq() gin.HandlerFunc {
 	return leakyBucket(rpsAllReq)
@@ -75,6 +91,17 @@ func assertBadCookieSecret() {
 	if len(cookieSecret) < ln {
 		log.Fatalf("Length of env.COOKIE_SECRET should be gte %d\n", ln)
 	}
+}
+func enhancedCookieSessions() gin.HandlerFunc {
+	store := cookie.NewStore([]byte(cookieSecret))
+	// mind security: cookie options
+	// https://github.com/gin-contrib/sessions/blob/master/session_options_go1.11.go
+	store.Options(sessions.Options{
+		Path:     cookiePath,
+		Secure:   cookieSecure,
+		HttpOnly: true,
+	})
+	return sessions.Sessions(cookieName, store)
 }
 
 // todo: plus most-used-passwords check

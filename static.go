@@ -12,6 +12,7 @@ import (
 
 const (
 	maxAgeMinute = 60
+	ttlVendor    = 60 * maxAgeMinute
 	ttlStatic    = 5 * maxAgeMinute
 	ttlPostDir   = 1 * maxAgeMinute
 )
@@ -26,7 +27,10 @@ func staticRoute(r *gin.Engine) {
 	// https://github.com/gin-gonic/gin/issues/1222
 	r.Use(func(c *gin.Context) {
 		ttl := ttlStatic
-		if strings.HasPrefix(c.Request.URL.Path, "/p/") {
+		path := c.Request.URL.Path
+		if strings.HasPrefix(path, "/vendor/") && path != "/vendor/blog.js" && path != "/vendor/blog.css" {
+			ttl = ttlVendor
+		} else if strings.HasPrefix(path, "/p/") {
 			ttl = ttlPostDir
 		}
 		// Apply the Cache-Control header to the static files
