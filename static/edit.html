@@ -14,13 +14,12 @@
     section { display: flex; flex-direction: column; }
     h1 { padding: .5em 1em; font-size: 120% }
     h1 a { font-weight: normal }
-    h1 aside { float: right }
-    h1 button { float: right }
+    h1 aside, h1 button { float: right }
     h1 button+button { margin-right: .8em }
-    #btnOpen { display: none }
-    #h5Toggle { display: none }
+    #btnSave, #btnOpen, #h5Toggle { display: none }
     textarea { flex: 1; padding: 1em; font-size: 140% }
     .can-preview #btnOpen { display: block }
+    .can-edit #btnSave { display: block }
     @media screen and (max-width: 720px) {
       main { flex-direction: column }
       iframe { flex: .8 }
@@ -46,7 +45,7 @@
   </main>
   <script>
     let loadReady = false, previewFlag = true, canPreview = false
-    let isExtMd = false
+    let isExtMdStrict = false
     let file = ''
     let config = {}
     init()
@@ -88,7 +87,7 @@
           try {
             let a = document.createElement('a')
             a.setAttribute('target', '_blank')
-            a.setAttribute('href', getPreviewFreshSrc(config.deliveryUrl))
+            a.setAttribute('href', getPreviewFreshSrc(config.deliveryUrl, true))
             console.log('a.href', a.href)
             a.click()
           } catch (err) {
@@ -110,14 +109,13 @@
             throw err
           }
         })
-        isExtMd = /\.md$/.test(file) // case-sensitive
-        let isText = isExtMd
+        isExtMdStrict = /\.md$/.test(file) // case-sensitive, only lowercase-`.md` supported by silent
         let isExtImage = /\.(webp|png|jpe?g|gif)$/i.test(file) // ~insensitive
         let isExtVideo = /\.(mp4|webm)$/i.test(file) // ~insensitive
         let isExtAudio = /\.(mp3|wav|ogg)$/i.test(file) // ~insensitive
         let isMedia = isExtImage || isExtVideo || isExtAudio
-        canPreview = isExtMd || isMedia
-        canEdit = isExtMd
+        canPreview = isExtMdStrict || isMedia
+        canEdit = isExtMdStrict
         let titleSpan = pageTitle.querySelector('span')
         if (canEdit) {
           main.classList.add('can-edit')
@@ -159,7 +157,15 @@
           doc.body.appendChild(h)
           preview.style.visibility = 'visible'
         }
-        if (isText) {
+        if (canEdit) {
+          editor.addEventListener('keydown', async e => {
+            try {
+              supportTabKey(e)
+            } catch (err) {
+              alert(String(err))
+              throw err
+            }
+          })
           let ts = Date.now()
           let resp = await fetch(`p/${encodeURI(file)}?_=${ts}`)
           let text = await resp.text()
@@ -196,16 +202,42 @@
       preview.style.visibility = 'hidden'
       preview.setAttribute('src', getPreviewFreshSrc())
     }
-    function getPreviewFreshSrc(prefix) {
+    function getPreviewFreshSrc(prefix, external) {
       let ts = Date.now()
       let params = new URLSearchParams()
       let seg = file.replace(/\.md$/i, '')
       seg = encodeURI(seg)
+      if (external && seg === 'sidebar') seg = 'index'
       if (seg === 'index') seg = ''
-      if (!isExtMd) {
+      if (!isExtMdStrict) {
         return `${prefix || './'}p/${seg}?_=${ts}`
       }
-      return `${prefix || './'}?${seg}${seg ? '&' : ''}_=${ts}`
+      return `${prefix || './'}?${seg}${seg ? '&' : ''}${external ? '' : 'sidebar=0&'}_=${ts}`
+    }
+    function supportTabKey(e) {
+      if (e.keyCode !== 9) return
+      let indent = '  ' // two spaces for markdown
+      let indentSize = indent.length
+      e.preventDefault()
+      let start = editor.selectionStart
+      let end = editor.selectionEnd
+      let value = editor.value
+      let caret = start
+      // ** support shift+tab
+      if (e.shiftKey) {
+        let canUnindent = value.substring(start - 1, start) === '\t' ||
+          value.substring(start - indentSize, start) === indent
+        if (!canUnindent) return // break
+        value = value.substring(0, start - indentSize) + value.substring(end)
+        caret -= indentSize
+      } else {
+        // Use tab to indent in textarea
+        // https://stackoverflow.com/questions/6637341/use-tab-to-indent-in-textarea
+        value = value.substring(0, start) + indent + value.substring(end)
+        caret += indentSize
+      }
+      editor.value = value
+      editor.selectionStart = editor.selectionEnd = caret
     }
     function captureHotkeyToSave(win) {
       win.addEventListener('keydown', async e => {

@@ -1,3 +1,6 @@
+<!-- custom the sidebar color if you want -->
+<style>.sidebar { background-color: #336666 }</style>
+
 # [Wiki](./index.md)
 
 > Your first Wiki...

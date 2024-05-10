@@ -20,8 +20,9 @@ const (
 )
 
 var (
-	regexExtMd               = regexp.MustCompile(`\.md$`)    // case-sensitive
-	regexEnsureExtMd         = regexp.MustCompile(`(\.md)?$`) // case-sensitive
+	// only lowercase-`.md` supported by silent
+	regexExtMdStrict         = regexp.MustCompile(`\.md$`)    // case-sensitive
+	regexEnsureExtMdStrict   = regexp.MustCompile(`(\.md)?$`) // case-sensitive
 	regexEnsureTrailingSlash = regexp.MustCompile(`/?$`)
 
 	_deliveryUrl = os.Getenv("DELIVERY_URL")
@@ -57,7 +58,7 @@ func adminApis(r *gin.Engine) {
 		a.POST("/api/save", func(c *gin.Context) {
 			fileKey := c.GetHeader("x-wiki-file")
 			fileKey, _ = url.PathUnescape(fileKey)
-			if fileKey == "" || !isExtMd(fileKey) {
+			if fileKey == "" || !isExtMdStrict(fileKey) {
 				c.JSON(400, errorRes{"Bad request"})
 				return
 			}
@@ -89,7 +90,7 @@ func adminApis(r *gin.Engine) {
 			isDir := strings.HasSuffix(key, "/")
 			if !isDir {
 				// for simplicity, only allow `*.md` as New-File for now
-				key = ensureExtMd(key)
+				key = ensureExtMdStrict(key)
 			}
 			// mind security
 			pathAbs, ok := checkIllegalPathToCreate(c, key)
@@ -137,9 +138,9 @@ func ensureTrailingSlash(str string) string {
 	}
 	return regexEnsureTrailingSlash.ReplaceAllLiteralString(str, "/")
 }
-func ensureExtMd(key string) string {
-	return regexEnsureExtMd.ReplaceAllLiteralString(key, ".md")
+func ensureExtMdStrict(key string) string {
+	return regexEnsureExtMdStrict.ReplaceAllLiteralString(key, ".md")
 }
-func isExtMd(key string) bool {
-	return regexExtMd.MatchString(key)
+func isExtMdStrict(key string) bool {
+	return regexExtMdStrict.MatchString(key)
 }

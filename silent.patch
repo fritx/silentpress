@@ -12,23 +12,55 @@ index 50eaa8a..9e0dd02 100644
  <script src="vendor/mermaid-9.1.6.min.js"></script>
  <script src="vendor/highlight.pack.js"></script>
 diff --git a/blog/vendor/blog.js b/blog/vendor/blog.js
-index 791dfa2..8583ba9 100644
+index 791dfa2..88df290 100644
 --- a/blog/vendor/blog.js
 +++ b/blog/vendor/blog.js
-@@ -464,7 +464,12 @@
+@@ -9,7 +9,7 @@
+   var sidebarPage, defaultPage
+   var mainPage, mainTitle
+   var mainPageId, mainSearch
+-  var useCache = true
++  var useCache = true, showSidebar = true
+ 
+   function loadSidebar() {
+     load('#sidebar-page', sidebarPage)
+@@ -464,7 +464,18 @@
      if (/^---/.test(data)) {
        data = data.replace(/^---([\s\S]*?)---\s+/m, '')
      }
 -    marked(data, callback)
 +    marked(data, function (err, html) {
 +      if (html && window.silentSanitize) {
-+        html = window.DOMPurify.sanitize(html, { ADD_ATTR: ['target'] })
++        html = window.DOMPurify.sanitize(html, {
++          ADD_ATTR: ['target'], // like <a target=_blank>
++          ADD_TAGS: ['style'], // like sidebar color
++          // fix: <style> tags removed when at the beginning of the HTML #257
++          // https://github.com/cure53/DOMPurify/issues/257
++          FORCE_BODY: true
++        })
 +      }
 +      callback(err, html)
 +    })
    }
  
    function shares() {
+@@ -472,13 +483,14 @@
+   }
+ 
+   function start() {
+-    loadSidebar()
++    if (showSidebar) loadSidebar()
+   }
+ 
+   function config() {
++    // ** for silentpress editor-preview
+     // jQuery.ajax uses `?_=(timestamp)` when `cache` is false
+-    // for silentpress editor-preview
+     if (/[?&][t_]=/.test(location.search)) useCache = false
++    if (/[?&]sidebar=0/.test(location.search)) showSidebar = false
+ 
+     // -- Optional: history.pushState API (PJAX) for silent internal page navigation
+     preferPJAX()
 diff --git a/blog/vendor/purify-3.1.2.min.js b/blog/vendor/purify-3.1.2.min.js
 new file mode 100644
 index 0000000..40e13ee
