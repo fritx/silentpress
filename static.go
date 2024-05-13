@@ -19,6 +19,7 @@ const (
 )
 
 var (
+	adminOnly  = os.Getenv("ADMIN_ONLY") == "1"
 	_postDir   = os.Getenv("POST_DIR")
 	postDirAbs = ""
 )
@@ -44,19 +45,23 @@ func staticRoute(r *gin.Engine) {
 		}
 		// Apply the Cache-Control header to the static files
 		c.Header("Cache-Control", fmt.Sprintf("public, max-age=%d", ttl))
-		// Continue to the next middleware or handler
-		c.Next()
 	})
+	r.Use(protectPrivate)
+
 	// Note: Inability to use '/' for static files #75
 	// https://github.com/gin-gonic/gin/issues/75
 	// r.Static("/", "./static")
-	r.StaticFile("/favicon.ico", "./silent/blog/favicon.ico")
 	r.StaticFile("/edit", "./static/edit.html")
 	r.StaticFile("/admin", "./static/admin.html")
 	r.StaticFile("/login", "./static/login.html")
-
 	// r.Use(static.Serve("/", static.LocalFile("./static", false)))
-	r.Use(static.Serve("/p", static.LocalFile(_postDir, false)))
+
 	r.Use(static.Serve("/", static.LocalFile("./silent_ext", true)))
 	r.Use(static.Serve("/vendor", static.LocalFile("./silent/blog/vendor", false)))
+	r.StaticFile("/favicon.ico", "./silent/blog/favicon.ico")
+
+	if adminOnly {
+		r.Use(checkAuth)
+	}
+	r.Use(static.Serve("/p", static.LocalFile(postDirAbs, false)))
 }

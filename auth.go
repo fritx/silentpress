@@ -15,9 +15,15 @@ func init() {
 	assertBadPassword()
 }
 
+var protectPrivate gin.HandlerFunc = func(c *gin.Context) {
+	path := c.Request.URL.Path
+	if isLikePrivatePath(path) && !isLoggedIn(c) {
+		c.Status(404)
+		c.Abort()
+	}
+}
 var checkAuth gin.HandlerFunc = func(c *gin.Context) {
-	_, ok := getUser(c)
-	if !ok {
+	if !isLoggedIn(c) {
 		c.JSON(401, errorRes{"Login required"})
 		c.Abort()
 	}
@@ -38,4 +44,9 @@ func authApis(r *gin.Engine) {
 	r.GET("/api/session", checkAuth, func(c *gin.Context) {
 		c.JSON(200, getConfigRes())
 	})
+}
+
+func isLoggedIn(c *gin.Context) bool {
+	_, ok := getUser(c)
+	return ok
 }

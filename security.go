@@ -35,6 +35,7 @@ var (
 	// silent: url path with `#`,`?`, `&`, `=` - 404 Page not found
 	// `%` - 400 Bad request
 	regexUnsupportedPath = regexp.MustCompile(`[?#&=%]`)
+	regexLikePrivatePath = regexp.MustCompile(`([\\/]|^)[.~_]`)
 )
 
 func init() {
@@ -77,6 +78,9 @@ func checkIllegalDirToList(c *gin.Context, dirKey string) (string, bool) {
 	return dirAbs, true
 }
 
+func isLikePrivatePath(path string) bool {
+	return regexLikePrivatePath.MatchString(path)
+}
 func isUnsupportedPath(pathAbs string) bool {
 	return regexUnsupportedPath.MatchString(pathAbs)
 }

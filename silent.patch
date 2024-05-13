@@ -21,7 +21,7 @@ index 50eaa8a..b95df2b 100644
  <script src="vendor/mermaid-9.1.6.min.js"></script>
  <script src="vendor/highlight.pack.js"></script>
 diff --git a/blog/vendor/blog.js b/blog/vendor/blog.js
-index 791dfa2..88df290 100644
+index 791dfa2..bb85105 100644
 --- a/blog/vendor/blog.js
 +++ b/blog/vendor/blog.js
 @@ -9,7 +9,7 @@
@@ -33,7 +33,15 @@ index 791dfa2..88df290 100644
  
    function loadSidebar() {
      load('#sidebar-page', sidebarPage)
-@@ -464,7 +464,18 @@
+@@ -48,6 +48,7 @@
+       cache: useCache,
+       error: function (err) {
+         if (isMain && pageId !== mainPageId) return
++        if (err.status === 401) return location.href = 'login'
+ 
+         if (stack.length) {
+           return load(sel, stack, isMain, callback, isPopState)
+@@ -464,7 +465,18 @@
      if (/^---/.test(data)) {
        data = data.replace(/^---([\s\S]*?)---\s+/m, '')
      }
@@ -53,7 +61,7 @@ index 791dfa2..88df290 100644
    }
  
    function shares() {
-@@ -472,13 +483,14 @@
+@@ -472,13 +484,14 @@
    }
  
    function start() {
