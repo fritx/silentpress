@@ -1,7 +1,16 @@
 diff --git a/blog/index.html b/blog/index.html
-index 50eaa8a..9e0dd02 100644
+index 50eaa8a..b95df2b 100644
 --- a/blog/index.html
 +++ b/blog/index.html
+@@ -25,7 +25,7 @@
+   <link rel="stylesheet" href="vendor/zenburn.css">
+   <link rel="stylesheet" href="vendor/blog.css">
+   <!-- custom -->
+-  <style>.sidebar { background-color: #336699 }</style>
++  <!-- <style>.sidebar { background-color: #336699 }</style> -->
+ </head>
+ <body>
+ 
 @@ -58,6 +58,8 @@
  <script src="vendor/pace-1.2.4.min.js"></script>
  <script src="vendor/lodash-4.17.21.min.js"></script>

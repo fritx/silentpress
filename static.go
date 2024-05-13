@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,9 +19,17 @@ const (
 )
 
 var (
-	_postDir      = os.Getenv("POST_DIR")
-	postDirAbs, _ = filepath.Abs(_postDir)
+	_postDir   = os.Getenv("POST_DIR")
+	postDirAbs = ""
 )
+
+func init() {
+	if abs, err := filepath.Abs(_postDir); err != nil {
+		log.Fatalf("env.POST_DIR=%q is invalid\n", _postDir)
+	} else {
+		postDirAbs = abs
+	}
+}
 
 func staticRoute(r *gin.Engine) {
 	// Note: How to cache static files? #1222

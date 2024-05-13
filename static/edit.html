@@ -153,7 +153,7 @@
           style.textContent = 'body { margin: 0; padding: 1em }'
           doc.body.appendChild(style)
           let h = doc.createElement('h3')
-          h.textContent = `Can not preview file ${JSON.stringify(file)}. Only *.md files are supported.`
+          h.textContent = `Can not preview file ${JSON.stringify(file)}. Only media and *.md files are supported.`
           doc.body.appendChild(h)
           preview.style.visibility = 'visible'
         }
@@ -225,8 +225,7 @@
       let caret = start
       // ** support shift+tab
       if (e.shiftKey) {
-        let canUnindent = value.substring(start - 1, start) === '\t' ||
-          value.substring(start - indentSize, start) === indent
+        let canUnindent = value.substring(start - indentSize, start) === indent
         if (!canUnindent) return // break
         value = value.substring(0, start - indentSize) + value.substring(end)
         caret -= indentSize

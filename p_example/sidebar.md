@@ -1,4 +1,4 @@
-<!-- custom the sidebar color if you want -->
+<!-- Don't forget to specify the sidebar color here -->
 <style>.sidebar { background-color: #336666 }</style>
 
 # [Wiki](./index.md)
