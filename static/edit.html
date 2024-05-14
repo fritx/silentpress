@@ -12,7 +12,7 @@
     main>* { flex: 1 }
     iframe { visibility: hidden }
     section { display: flex; flex-direction: column; }
-    h1 { padding: .5em 1em; font-size: 120% }
+    h1 { padding: .5em 1em; font-size: 120%; word-break: break-all }
     h1 a { font-weight: normal }
     h1 aside, h1 button { float: right }
     h1 button+button { margin-right: .8em }
@@ -20,9 +20,17 @@
     textarea { flex: 1; padding: 1em; font-size: 140% }
     .can-preview #btnOpen { display: block }
     .can-edit #btnSave { display: block }
+    .can-edit #editing { display: inline }
+    #saving, .failed { display: none }
+    .is-saving #saving { display: inline }
+    .is-saving #editing, .is-saving #fileTitle { display: none }
+    .is-failed .failed { display: inline }
+    .is-failed #editing { display: none }
+    .failed { color: #dd1133 }
     @media screen and (max-width: 720px) {
       main { flex-direction: column }
       iframe { flex: .8 }
+      h1 { margin: .4em 0 }
       .can-edit #h5Toggle { display: block }
     }
   </style>
@@ -33,7 +41,12 @@
     <iframe id="preview" src="about:blank"></iframe>
     <section>
       <h1 id="pageTitle">
-        <a>&lt;&lt;</a>&nbsp;<span>Editing</span>
+        <a>&lt;&lt;</a>
+        <span id="editing">Editing:</span>
+        <span id="saving">Saving...</span>
+        <span class="failed">Failed to save:</span>
+        <span id="fileTitle"></span>
+        <span class="failed">...please try again!</span>
         <aside>
           <button id="btnSave">💾</button>
           <button id="h5Toggle">📝</button>
@@ -44,7 +57,9 @@
     </section>
   </main>
   <script>
-    let loadReady = false, previewFlag = true, canPreview = false
+    let loadReady = false, canPreview = false
+    let previewFlag = true, previewDirty = false
+    let savingTitleTimer = null
     let isExtMdStrict = false
     let file = ''
     let config = {}
@@ -68,6 +83,7 @@
           return
         }
         htmlTitle.textContent = file
+        fileTitle.textContent = file
 
         let params = new URLSearchParams()
         let parent = file.split('/').slice(0, -1).join('/')
@@ -87,8 +103,7 @@
           try {
             let a = document.createElement('a')
             a.setAttribute('target', '_blank')
-            a.setAttribute('href', getPreviewFreshSrc(config.deliveryUrl, true))
-            console.log('a.href', a.href)
+            a.setAttribute('href', getPreviewFreshSrc(true))
             a.click()
           } catch (err) {
             alert(String(err))
@@ -101,6 +116,10 @@
             h5Toggle.textContent = previewFlag ? '📝' : '👀'
             if (previewFlag) {
               preview.style.display = 'block'
+              if (previewDirty) {
+                doPreview()
+                previewDirty = false
+              }
             } else {
               preview.style.display = 'none'
             }
@@ -116,13 +135,7 @@
         let isMedia = isExtImage || isExtVideo || isExtAudio
         canPreview = isExtMdStrict || isMedia
         canEdit = isExtMdStrict
-        let titleSpan = pageTitle.querySelector('span')
-        if (canEdit) {
-          main.classList.add('can-edit')
-          titleSpan.textContent = `Editing: ${file}`
-        } else {
-          titleSpan.textContent = file
-        }
+        if (canEdit) main.classList.add('can-edit')
 
         captureHotkeyToSave(preview.contentWindow)
         if (canPreview) {
@@ -187,32 +200,55 @@
     }
     async function save() {
       if (!canEdit || !loadReady) return
-      let resp = await fetch('api/save', {
-        method: 'POST',
-        headers: { 'x-wiki-file': encodeURI(file) },
-        body: editor.value,
-      })
-      let res = await resp.json()
-      if (res.error) {
-        throw new Error(res.error)
+      if (savingTitleTimer != null) {
+        clearTimeout(savingTitleTimer)
+        savingTitleTimer = null
+      }
+      main.classList.remove('is-failed')
+      main.classList.add('is-saving')
+      try {
+        let resp = await fetch('api/save', {
+          method: 'POST',
+          headers: { 'x-wiki-file': encodeURI(file) },
+          body: editor.value,
+        })
+        let res = await resp.json()
+        if (res.error) {
+          throw new Error(res.error)
+        }
+        savingTitleTimer = setTimeout(() => {
+          main.classList.remove('is-saving')
+        }, 500)
+      } catch (err) {
+        main.classList.remove('is-saving')
+        main.classList.add('is-failed')
+        throw err
       }
       if (canPreview) doPreview()
     }
     function doPreview() {
+      if (!previewFlag) {
+        previewDirty = true
+        return
+      }
       preview.style.visibility = 'hidden'
-      preview.setAttribute('src', getPreviewFreshSrc())
+      // fix: avoid browser back-btn causing iframe going back first instead of the edit page
+      // preview.setAttribute('src', getPreviewFreshSrc())
+      preview.contentWindow.location.replace(getPreviewFreshSrc())
     }
-    function getPreviewFreshSrc(prefix, external) {
+    function getPreviewFreshSrc(isExternal) {
       let ts = Date.now()
       let params = new URLSearchParams()
       let seg = file.replace(/\.md$/i, '')
       seg = encodeURI(seg)
-      if (external && seg === 'sidebar') seg = 'index'
+      if (isExternal && seg === 'sidebar') seg = 'index'
       if (seg === 'index') seg = ''
+      // deliveryUrl enabled only if isExternal
+      let prefix = isExternal && config.deliveryUrl || './'
       if (!isExtMdStrict) {
-        return `${prefix || './'}p/${seg}?_=${ts}`
+        return `${prefix}p/${seg}?_=${ts}`
       }
-      return `${prefix || './'}?${seg}${seg ? '&' : ''}${external ? '' : 'sidebar=0&'}_=${ts}`
+      return `${prefix}?${seg}${seg ? '&' : ''}${isExternal ? '' : 'sidebar=0&'}_=${ts}`
     }
     function supportTabKey(e) {
       if (e.keyCode !== 9) return

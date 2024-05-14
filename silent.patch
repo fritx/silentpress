@@ -21,7 +21,7 @@ index 50eaa8a..b95df2b 100644
  <script src="vendor/mermaid-9.1.6.min.js"></script>
  <script src="vendor/highlight.pack.js"></script>
 diff --git a/blog/vendor/blog.js b/blog/vendor/blog.js
-index 791dfa2..bb85105 100644
+index 791dfa2..969a957 100644
 --- a/blog/vendor/blog.js
 +++ b/blog/vendor/blog.js
 @@ -9,7 +9,7 @@
@@ -29,12 +29,18 @@ index 791dfa2..bb85105 100644
    var mainPage, mainTitle
    var mainPageId, mainSearch
 -  var useCache = true
-+  var useCache = true, showSidebar = true
++  var useTimestamp = '', showSidebar = true
  
    function loadSidebar() {
      load('#sidebar-page', sidebarPage)
-@@ -48,6 +48,7 @@
-       cache: useCache,
+@@ -43,11 +43,12 @@
+     if (isMain) mainPageId = pageId
+ 
+     var url = pageBase + pageId + pageExt
++    if (useTimestamp) url += `?_=` + useTimestamp
+     $.ajax({
+       url: url,
+-      cache: useCache,
        error: function (err) {
          if (isMain && pageId !== mainPageId) return
 +        if (err.status === 401) return location.href = 'login'
@@ -61,7 +67,7 @@ index 791dfa2..bb85105 100644
    }
  
    function shares() {
-@@ -472,13 +484,14 @@
+@@ -472,13 +484,16 @@
    }
  
    function start() {
@@ -73,7 +79,10 @@ index 791dfa2..bb85105 100644
 +    // ** for silentpress editor-preview
      // jQuery.ajax uses `?_=(timestamp)` when `cache` is false
 -    // for silentpress editor-preview
-     if (/[?&][t_]=/.test(location.search)) useCache = false
+-    if (/[?&][t_]=/.test(location.search)) useCache = false
++    // if (/[?&][t_]=/.test(location.search)) useCache = false
++    var mat = location.search.match(/[?&][t_]=(.+)/)
++    useTimestamp = mat && mat[1] || ''
 +    if (/[?&]sidebar=0/.test(location.search)) showSidebar = false
  
      // -- Optional: history.pushState API (PJAX) for silent internal page navigation

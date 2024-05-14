@@ -109,7 +109,8 @@ func adminApis(r *gin.Engine) {
 					}
 				} else {
 					filename := filepath.Base(pathAbs)
-					content := fmt.Sprintf("# %s\n\n> ...", filename)
+					base := strings.TrimSuffix(filename, filepath.Ext(filename))
+					content := fmt.Sprintf("# %s\n\n> ...", base)
 					if err := os.WriteFile(pathAbs, []byte(content), filePerm); err != nil {
 						c.JSON(500, errorRes{"Failed to create"})
 						log.Printf("Failed to write file %q. err=%v\n", pathAbs, err)
