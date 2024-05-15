@@ -68,9 +68,10 @@
             let a = document.createElement('a')
             a.setAttribute('href', 'javascript:void 0')
             a.addEventListener('click', async () => {
+              let isCancel = false
               try {
                 let key = (prompt('New Directory:') || '').trim()
-                if (!key) return
+                if (!key) return isCancel = true
                 key = key.replace(/\/*$/, '/')
                 await create(key)
               } catch (err) {
@@ -78,7 +79,7 @@
                 throw err
               } finally {
                 // might be path already exists
-                location.reload()
+                if (!isCancel) location.reload()
               }
             })
             a.textContent = '+📁'
@@ -86,9 +87,10 @@
             a = document.createElement('a')
             a.setAttribute('href', 'javascript:void 0')
             a.addEventListener('click', async () => {
+              let isCancel = false
               try {
                 let key = (prompt('New File:') || '').trim()
-                if (!key) return
+                if (!key) return isCancel = true
                 key = key.replace(/\/+$/, '')
                 await create(key)
               } catch (err) {
@@ -96,7 +98,7 @@
                 throw err
               } finally {
                 // might be path already exists
-                location.reload()
+                if (!isCancel) location.reload()
               }
             })
             a.textContent = '+📄'

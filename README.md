@@ -10,6 +10,7 @@
 | Static first | √ | √ | √ |  |
 | Build-stage free | √ | √ |  | √ |
 | CMS admin |  | √ | [🔧](https://vitepress.dev/guide/cms) | √ |
+| Access control |  | √ |  | √ |
 | Database free | √ | √ | √ |  |
 | Soooo simple | √ | √ |  |  |
 
