@@ -174,6 +174,7 @@
           editor.addEventListener('keydown', e => {
             try {
               supportTabKey(e)
+              supportCutLine(e)
             } catch (err) {
               alert(String(err))
               throw err
@@ -250,6 +251,30 @@
         return `${prefix}p/${seg}?_=${ts}`
       }
       return `${prefix}?${seg}${seg ? '&' : ''}${isExternal ? '' : 'sidebar=0&'}_=${ts}`
+    }
+    function supportCutLine(e) {
+      if ((e.metaKey || e.ctrlKey) && e.keyCode === 'X'.charCodeAt(0)) {
+        if (editor.value.length === 0) return // no-op
+        let startPos = editor.selectionStart
+        let endPos = editor.selectionEnd
+        if (startPos !== endPos) return // use default
+        e.preventDefault()
+        let lineStart = startPos, lineEnd = endPos
+        while (lineStart > 0 && editor.value[lineStart - 1] !== '\n') lineStart--
+        while (lineEnd < editor.value.length && editor.value[lineEnd] !== '\n') lineEnd++
+        if (lineEnd < editor.value.length - 1 && editor.value[lineEnd] === '\n') {
+          lineEnd++
+        } else if (lineStart > 0 && editor.value[lineStart] === '\n') {
+          lineStart--
+        }
+        editor.selectionStart = lineStart
+        editor.selectionEnd = lineEnd
+        editor.focus()
+        document.execCommand('cut')
+        if (lineStart >= editor.value.length) {
+          editor.selectionStart = editor.selectionEnd = lineStart-1
+        }
+      }
     }
     // enhanced: `Use tab to indent in textarea` implementation
     // which works fine with undo/redo
