@@ -16,8 +16,8 @@
     h1 a { font-weight: normal }
     h1 aside, h1 button { float: right }
     h1 button+button { margin-right: .8em }
-    #btnSave, #btnOpen, #h5Toggle { display: none }
-    textarea { flex: 1; padding: 1em; font-size: 140% }
+    #btnSave, #btnOpen, #h5Toggle, #editing { display: none }
+    textarea { flex: 1; padding: 1em; font-size: 130% }
     .can-preview #btnOpen { display: block }
     .can-edit #btnSave { display: block }
     .can-edit #editing { display: inline }
@@ -171,7 +171,7 @@
           preview.style.visibility = 'visible'
         }
         if (canEdit) {
-          editor.addEventListener('keydown', async e => {
+          editor.addEventListener('keydown', e => {
             try {
               supportTabKey(e)
             } catch (err) {
@@ -251,29 +251,29 @@
       }
       return `${prefix}?${seg}${seg ? '&' : ''}${isExternal ? '' : 'sidebar=0&'}_=${ts}`
     }
+    // enhanced: `Use tab to indent in textarea` implementation
+    // which works fine with undo/redo
     function supportTabKey(e) {
       if (e.keyCode !== 9) return
+      e.preventDefault()
       let indent = '  ' // two spaces for markdown
       let indentSize = indent.length
-      e.preventDefault()
       let start = editor.selectionStart
       let end = editor.selectionEnd
       let value = editor.value
       let caret = start
-      // ** support shift+tab
       if (e.shiftKey) {
         let canUnindent = value.substring(start - indentSize, start) === indent
         if (!canUnindent) return // break
-        value = value.substring(0, start - indentSize) + value.substring(end)
-        caret -= indentSize
+        // current shift+tab implementation doesn't make
+        // the shift+tab op itself work perfectly with undo
+        editor.selectionStart -= indentSize
+        editor.focus()
+        document.execCommand('insertText', false, '')
       } else {
-        // Use tab to indent in textarea
-        // https://stackoverflow.com/questions/6637341/use-tab-to-indent-in-textarea
-        value = value.substring(0, start) + indent + value.substring(end)
-        caret += indentSize
+        editor.focus()
+        document.execCommand('insertText', false, indent)
       }
-      editor.value = value
-      editor.selectionStart = editor.selectionEnd = caret
     }
     function captureHotkeyToSave(win) {
       win.addEventListener('keydown', async e => {
