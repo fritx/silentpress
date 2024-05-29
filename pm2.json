@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "silentpress",
-      "script": "go build && ./silentpress",
+      "script": "./silentpress",
       "max_restarts": 3
     }
   ]

@@ -39,4 +39,4 @@ gspp
 (cd silent && git stash -u)
 git submodule update --init --recursive
 (cd silent && git apply ../silent.patch)
-pm2 start pm2.json && pm2 log
+./pm2.sh

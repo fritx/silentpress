@@ -69,7 +69,7 @@ pkill -f silentpress/tmp/main; \
 go build && ./silentpress
 
 # Deploy via PM2
-pm2 start pm2.json && pm2 log
+./pm2.sh
 
 # Develop via Docker-Compose
 docker compose up
