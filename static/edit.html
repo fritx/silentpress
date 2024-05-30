@@ -10,7 +10,7 @@
     body { margin: 0; padding: 0 }
     main { display: flex }
     main>* { flex: 1 }
-    iframe { visibility: hidden }
+    iframe { visibility: hidden; background-color: gray }
     section { display: flex; flex-direction: column; }
     h1 { padding: .5em 1em; font-size: 120%; word-break: break-all }
     h1 a { font-weight: normal }
@@ -129,7 +129,7 @@
           }
         })
         isExtMdStrict = /\.md$/.test(file) // case-sensitive, only lowercase-`.md` supported by silent
-        let isExtImage = /\.(webp|png|jpe?g|gif)$/i.test(file) // ~insensitive
+        let isExtImage = /\.(webp|svg|png|jpe?g|gif)$/i.test(file) // ~insensitive
         let isExtVideo = /\.(mp4|webm)$/i.test(file) // ~insensitive
         let isExtAudio = /\.(mp3|wav|ogg)$/i.test(file) // ~insensitive
         let isMedia = isExtImage || isExtVideo || isExtAudio
@@ -144,13 +144,20 @@
             try {
               captureHotkeyToSave(preview.contentWindow)
               let doc = preview.contentWindow.document
-              let style = doc.createElement('style')
-              if (isMedia) {
-                style.textContent = `body { background-color: gray } img, video { max-width: 100% } .main-page { padding-bottom: 0 }`
+              // fix: no doc.head if src=`<svg>`
+              if (doc.head) {
+                let style = doc.createElement('style')
+                if (isMedia) {
+                  style.textContent = `img, video { max-width: 100% } .main-page { padding-bottom: 0 }`
+                } else {
+                  style.textContent = `.sidebar, .fork-me, #comment-system { display: none }`
+                }
+                doc.head.appendChild(style)
               } else {
-                style.textContent = `.sidebar, .fork-me, #comment-system { display: none }`
+                let style = doc.createElementNS('http://www.w3.org/2000/svg', 'style')
+                style.textContent = `svg { max-width: 100%; height: auto }`
+                doc.documentElement.appendChild(style)
               }
-              doc.head.appendChild(style)
               setTimeout(() => {
                 preview.style.visibility = 'visible'
               }, 300) // avoid sidebar flicker
