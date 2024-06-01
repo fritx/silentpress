@@ -6,11 +6,11 @@
   <meta name="viewport" content="width=device-width">
   <title id="htmlTitle">&nbsp;</title>
   <style>
-    html, body, main { height: 100% }
+    html, body, main { height: 100%; overflow: hidden }
     body { margin: 0; padding: 0 }
     main { display: flex }
     main>* { flex: 1 }
-    iframe { visibility: hidden; background-color: gray }
+    iframe { visibility: hidden; overflow-y: auto }
     section { display: flex; flex-direction: column; }
     h1 { padding: .5em 1em; font-size: 120%; word-break: break-all }
     h1 a { font-weight: normal }
@@ -136,6 +136,8 @@
         canPreview = isExtMdStrict || isMedia
         canEdit = isExtMdStrict
         if (canEdit) main.classList.add('can-edit')
+        // setting the entire iframe background to cover more area while scrolling
+        if (isMedia) preview.style.backgroundColor = 'gray'
 
         captureHotkeyToSave(preview.contentWindow)
         if (canPreview) {
