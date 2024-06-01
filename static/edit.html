@@ -8,7 +8,8 @@
   <style>
     html, body, main { height: 100%; overflow: hidden }
     body { margin: 0; padding: 0 }
-    main { display: flex }
+    main { display: flex; visibility: hidden }
+    main.ready { visibility: visible; }
     main>* { flex: 1 }
     iframe { visibility: hidden; overflow-y: auto }
     section { display: flex; flex-direction: column; }
@@ -17,7 +18,7 @@
     h1 aside, h1 button { float: right }
     h1 button+button { margin-right: .8em }
     #btnSave, #btnOpen, #h5Toggle, #editing { display: none }
-    textarea { flex: 1; padding: 1em; font-size: 130% }
+    textarea { flex: 1; padding: 1em; border-radius: 0; font-size: 130%; font-family: monospace }
     .can-preview #btnOpen { display: block }
     .can-edit #btnSave { display: block }
     .can-edit #editing { display: inline }
@@ -27,9 +28,10 @@
     .is-failed .failed { display: inline }
     .is-failed #editing { display: none }
     .failed { color: #dd1133 }
-    @media screen and (max-width: 720px) {
+    @media (max-width: 720px) {
       main { flex-direction: column }
       iframe { flex: .8 }
+      .can-preview.can-not-edit iframe { flex: 2 }
       h1 { margin: .4em 0 }
       .can-edit #h5Toggle { display: block }
     }
@@ -136,12 +138,15 @@
         canPreview = isExtMdStrict || isMedia
         canEdit = isExtMdStrict
         if (canEdit) main.classList.add('can-edit')
+        else main.classList.add('can-not-edit')
+        if (canPreview) main.classList.add('can-preview')
+        main.classList.add('ready')
         // setting the entire iframe background to cover more area while scrolling
         if (isMedia) preview.style.backgroundColor = 'gray'
 
         captureHotkeyToSave(preview.contentWindow)
         if (canPreview) {
-          main.classList.add('can-preview')
+          main.classList.add('ready')
           preview.addEventListener('load', () => {
             try {
               captureHotkeyToSave(preview.contentWindow)
@@ -150,7 +155,7 @@
               if (doc.head) {
                 let style = doc.createElement('style')
                 if (isMedia) {
-                  style.textContent = `img, video { max-width: 100% } .main-page { padding-bottom: 0 }`
+                  style.textContent = `body { user-select: none; display: flex; align-items: center; justify-content: center } img, video { max-width: 100% } .main-page { padding-bottom: 0 }`
                 } else {
                   style.textContent = `.sidebar, .fork-me, #comment-system { display: none }`
                 }
@@ -175,7 +180,7 @@
           style.textContent = 'body { margin: 0; padding: 1em }'
           doc.body.appendChild(style)
           let h = doc.createElement('h3')
-          h.textContent = `Can not preview file ${JSON.stringify(file)}. Only media and *.md files are supported.`
+          h.textContent = `Can not preview the file. Only media and *.md files are supported.`
           doc.body.appendChild(h)
           preview.style.visibility = 'visible'
         }
@@ -200,7 +205,7 @@
           }
           editor.value = text
         } else {
-          editor.value = `Can not edit file ${JSON.stringify(file)}. Only *.md files are supported.`
+          editor.value = `Can not edit the file. Only *.md files are supported.`
           editor.setAttribute('disabled', '')
         }
         loadReady = true
