@@ -186,6 +186,7 @@
             try {
               supportTabKey(e)
               supportCutLine(e)
+              supportCtrlEnter(e)
             } catch (err) {
               alert(String(err))
               throw err
@@ -262,6 +263,28 @@
         return `${prefix}p/${seg}?_=${ts}`
       }
       return `${prefix}?${seg}${seg ? '&' : ''}${isExternal ? '' : 'sidebar=0&'}_=${ts}`
+    }
+    function supportCtrlEnter(e) {
+      if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
+        e.preventDefault()
+        let startPos = editor.selectionStart
+        let endPos = editor.selectionEnd
+        let lineStart = startPos, lineEnd = endPos
+        while (lineStart > 0 && editor.value[lineStart - 1] !== '\n') lineStart--
+        while (lineEnd < editor.value.length && editor.value[lineEnd] !== '\n') lineEnd++
+        editor.focus()
+        if (e.shiftKey) {
+          editor.selectionStart = lineStart
+          editor.selectionEnd = lineStart
+          document.execCommand('insertText', false, '\n')
+          editor.selectionStart = lineStart
+          editor.selectionEnd = lineStart
+        } else {
+          editor.selectionStart = lineEnd
+          editor.selectionEnd = lineEnd
+          document.execCommand('insertText', false, '\n')
+        }
+      }
     }
     function supportCutLine(e) {
       if ((e.metaKey || e.ctrlKey) && e.keyCode === 'X'.charCodeAt(0)) {
