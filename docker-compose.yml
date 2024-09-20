@@ -15,6 +15,6 @@ services:
       # optional: share go/pkg & speed up
       # - path/to/go/pkg:/go/pkg
     environment:
-      HOST: '0.0.0.0' # required here
+      HOST: '0.0.0.0' # for docker
     ports:
       - '127.0.0.1:8080:8080'

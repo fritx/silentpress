@@ -17,13 +17,7 @@ go mod download
 # Add a cron job to recover ./p contents
 # How to create a cron job using Bash automatically without the interactive editor?
 # https://stackoverflow.com/questions/878600/how-to-create-a-cron-job-using-bash-automatically-without-the-interactive-editor
-# write out current crontab
-crontab -l > mycron
-# echo new cron into cron file
-echo "*/3 * * * * cd ~/m/i/silentpress && cp -r p_example/** p/" >> mycron
-# install new cron file
-crontab mycron
-rm mycron
+(crontab -l ; echo "*/3 * * * * cd ~/m/i/silentpress && cp -r p_example/** p/") | crontab -
 # Cron line explaination
 # * * * * * "command to be executed"
 # - - - - -

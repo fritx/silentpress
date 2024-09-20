@@ -103,10 +103,7 @@
         })
         btnOpen.addEventListener('click', () => {
           try {
-            let a = document.createElement('a')
-            a.setAttribute('target', '_blank')
-            a.setAttribute('href', getPreviewFreshSrc(true))
-            a.click()
+            fixWinOpen(getPreviewFreshSrc(true))
           } catch (err) {
             alert(String(err))
             throw err
@@ -330,6 +327,13 @@
         return true
       }
       return false
+    }
+    // fix window.open might not work on mobile
+    function fixWinOpen(url) {
+      let a = document.createElement('a')
+      a.setAttribute('target', '_blank')
+      a.setAttribute('href', url)
+      a.click()
     }
     function joinParams(url, params) {
       // damn trap: fix: params.size not working in older browsers like those in iPhoneX

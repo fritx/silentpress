@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -41,7 +42,17 @@ func adminApis(r *gin.Engine) {
 				c.JSON(400, errorRes{"Bad request"})
 				return
 			}
-			list, _ := os.ReadDir(dirAbs)
+			list, err := os.ReadDir(dirAbs)
+			if err != nil {
+				if errors.Is(err, os.ErrNotExist) {
+					// ignore and continue to list
+					// there should be some use-cases
+				} else {
+					c.JSON(500, errorRes{"Failed to read dir"})
+					log.Printf("Failed to read dir %q. err=%v\n", dirAbs, err)
+					return
+				}
+			}
 			res := &listRes{}
 			res.List = []listFile{}
 			for _, v := range list {

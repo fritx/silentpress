@@ -34,7 +34,7 @@ services:
       - ./path/to/.env:/app/.env
       - ./path/to/p:/app/p
     environment:
-      HOST: '0.0.0.0'  # required here
+      HOST: '0.0.0.0'  # for docker
     ports:
       - '127.0.0.1:8080:8080'
 ```
