@@ -1,3 +1,4 @@
 [submodule "silent"]
 	path = silent
 	url = git@github.com:fritx/silent.git
+	branch = for-silentpress

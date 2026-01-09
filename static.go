@@ -20,6 +20,7 @@ const (
 
 var (
 	adminOnly  = os.Getenv("ADMIN_ONLY") == "1"
+	cacheOff  = os.Getenv("CACHE_OFF") == "1"
 	_postDir   = os.Getenv("POST_DIR")
 	postDirAbs = ""
 )
@@ -36,6 +37,9 @@ func staticRoute(r *gin.Engine) {
 	// Note: How to cache static files? #1222
 	// https://github.com/gin-gonic/gin/issues/1222
 	r.Use(func(c *gin.Context) {
+		if cacheOff { // cache off for development need
+			return
+		}
 		ttl := ttlStatic
 		path := c.Request.URL.Path
 		if strings.HasPrefix(path, "/vendor/") && path != "/vendor/blog.js" && path != "/vendor/blog.css" {

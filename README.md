@@ -9,7 +9,7 @@
 | Markdown first | √ | √ | √ |  |
 | Static first | √ | √ | √ |  |
 | Build-stage free | √ | √ |  | √ |
-| CMS admin |  | √ | [🔧](https://vitepress.dev/guide/cms) | √ |
+| CMS admin |  | √ |  | √ |
 | Access control |  | √ |  | √ |
 | Database free | √ | √ | √ |  |
 | Soooo simple | √ | √ |  |  |

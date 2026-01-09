@@ -12,8 +12,6 @@ services:
     volumes:
       - ./.env:/app/.env
       - ./p:/app/p
-      # optional: share go/pkg & speed up
-      # - path/to/go/pkg:/go/pkg
     environment:
       HOST: '0.0.0.0' # for docker
     ports:
